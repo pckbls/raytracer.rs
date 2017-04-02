@@ -1,1 +1,8 @@
 target
+Cargo.lock
+
+.idea
+TODO.md
+
+output.ppm
+testdata/pixmap_save_test.ppm
