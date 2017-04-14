@@ -7,6 +7,7 @@ mod color;
 mod pixmap;
 mod raytrace;
 
+use std::time;
 use algebra::Vec4;
 
 fn main() {
@@ -36,7 +37,12 @@ fn main() {
     let pixmap = pixmap::Pixmap::new(64, 64);
 
     let mut raytrace = raytrace::Raytrace::new(scene, pixmap);
+
+    let ts_before = time::Instant::now();
     raytrace.run();
+    let ts_after = time::Instant::now();
+    println!("Rendering time: {:?}", ts_after.duration_since(ts_before));
+
     raytrace.pixmap.save_as_ppm("./output.ppm".to_string()).unwrap();
 }
 
