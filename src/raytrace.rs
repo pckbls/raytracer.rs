@@ -85,7 +85,7 @@ impl Raytrace {
         intersections
     }
 
-    fn calculate_model_mesh_intersection(&self, ref model: &Model, ray: Ray) -> Option<RayTriangleIntersection> {
+    fn calculate_model_mesh_intersection(&self, model: &Model, ray: Ray) -> Option<RayTriangleIntersection> {
         let mm = self.calc_model_matrix(&model);
 
         // TODO: read about Box
