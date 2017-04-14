@@ -181,7 +181,7 @@ impl Mat4 {
     }
 
     /// Calculates the matrix' determinant.
-    pub fn determinant(self) -> f64 {
+    pub fn determinant(&self) -> f64 {
         // This has helped me a lot:
         // https://github.com/stackgl/gl-mat4/blob/master/determinant.js
         let a00 = self.data[0];
