@@ -9,6 +9,7 @@ use mesh;
 
 pub struct Raytrace {
     scene: Scene,
+    // TODO: is it a good idea that the Raytrace struct consumes the Pixmap?
     pub pixmap: Pixmap
 }
 
