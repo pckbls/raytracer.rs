@@ -1,6 +1,6 @@
 use color::Color;
 
-use std::io::BufWriter;
+use std::io::{ BufReader, BufWriter };
 use std::io;
 use std::io::prelude::*;
 use std::fs::File;
@@ -51,8 +51,76 @@ impl Pixmap {
 
     /// Loads a pixmap from a PPM file
     #[allow(dead_code)]
-    pub fn try_load_from_ppm(path: String) -> Result<Self, io::Error> {
-        panic!("Not implemented yet.");
+    pub fn try_load_from_ppm(path: String) -> Result<Self, String> {
+        let f = File::open(path).map_err(|e| e.to_string())?;
+        let f = BufReader::new(f);
+
+        let mut width: u32 = 0;
+        let mut height: u32 = 0;
+        let mut pixmap: Pixmap = Pixmap::new(0, 0); // TODO: use Box instead?
+        let mut current_y: u32 = 0;
+
+        enum FSM { MagicHeader, Dimensions, Foo, Contents, Accepted };
+        let mut current_state = FSM::MagicHeader;
+
+        for line in f.lines() {
+            let line = line.unwrap();
+
+            match current_state {
+                FSM::MagicHeader => {
+                    if line != "P3" {
+                        return Err("Header does not equal 'P3'".to_string());
+                    }
+                    current_state = FSM::Dimensions;
+                }
+                FSM::Dimensions => {
+                    let splits: Vec<&str> = line.split_whitespace().collect();
+
+                    if splits.len() != 2 {
+                        return Err("Dimensions should consist of width and height".to_string())
+                    }
+
+                    //  TODO: do we have to use map_err ?
+                    width = splits[0].parse::<u32>().map_err(|_| "Cannot parse width.".to_string())?;
+                    height = splits[1].parse::<u32>().map_err(|_| "Cannot parse height.".to_string())?;
+
+                    pixmap = Pixmap::new(width, height);
+
+                    current_state = FSM::Foo;
+                }
+                FSM::Foo => {
+                    // TODO: implement
+                    current_state = FSM::Contents;
+                }
+                FSM::Contents => {
+                    let splits: Vec<&str> = line.split_whitespace().collect();
+
+                    if splits.len() != (width * 3) as usize {
+                        return Err("TODO".to_string()); // TODO
+                    }
+
+                    // TODO: consider using .map() instead?
+                    for x in 0..(width as usize) {
+                        let r = splits[3*x+0].parse::<u8>().map_err(|_| "Cannot parse r color".to_string())?;
+                        let g = splits[3*x+1].parse::<u8>().map_err(|_| "Cannot parse g color".to_string())?;
+                        let b = splits[3*x+2].parse::<u8>().map_err(|_| "Cannot parse b color".to_string())?;
+
+                        // TODO: Remember that we've inverted the y-axis, right?
+                        pixmap.draw(x as u32, height-current_y-1, Color { r: r, g: g, b: b });
+                    }
+
+                    current_y += 1;
+                    if current_y == height {
+                        current_state = FSM::Accepted
+                    }
+                }
+                FSM::Accepted => {
+                    return Err("TODO_height".to_string());
+                }
+            }
+        }
+
+        Ok(pixmap)
     }
 
     /// Saves the pixmap's contents as a PPM file
@@ -123,12 +191,11 @@ fn test_draw() {
 }
 
 #[test]
-#[ignore]
 fn test_save_load_ppm() {
     let mut pixmap = Pixmap::new(4, 4);
     pixmap.pixels[0].color.r = 5;
-    let result = pixmap.save_as_ppm("./testdata/output/pixmap_save_test.ppm".to_string());
-    assert!(result.is_ok());
-    Pixmap::try_load_from_ppm("./testdata/output/pixmap_save_test.ppm".to_string()).unwrap();
+    pixmap.save_as_ppm("./testdata/output/pixmap_save_test.ppm".to_string()).unwrap();
+    let loaded_pixmap = Pixmap::try_load_from_ppm("./testdata/output/pixmap_save_test.ppm".to_string()).unwrap();
+    assert_eq!(pixmap, loaded_pixmap);
 }
 
