@@ -5,4 +5,4 @@ Cargo.lock
 TODO.md
 
 output.ppm
-testdata/pixmap_save_test.ppm
+testdata/output/
