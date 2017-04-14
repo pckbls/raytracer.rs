@@ -72,9 +72,6 @@ impl Raytrace {
     fn calculate_triangle_intersections(&self, rays: Vec<Ray>) -> Vec<RayTriangleIntersection> {
         let mut intersections: Vec<RayTriangleIntersection> = Vec::new();
 
-        // TODO:
-        // We just generate some intersections here to verify the rest of the
-        // code works as intended.
         for ray in rays {
             let (x, y) = ray.pixmap_coords;
 
