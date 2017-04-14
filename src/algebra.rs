@@ -267,8 +267,8 @@ impl Mat4 {
     }
 
     /// TODO
-    pub fn epsilon_compare(a: Self, b: Self, epsilon: f64) -> bool {
-        let diff = a - b;
+    pub fn epsilon_compare(a: &Self, b: &Self, epsilon: f64) -> bool {
+        let diff = a.clone() - b.clone();
 
         for i in 0..4 {
             for j in 0..4 {
@@ -402,7 +402,7 @@ fn test_vec4_unproject() {
         0.0, 0.0, 1.0, -10.0,
         0.0, 0.0, 0.0, 1.0
     ]);
-    assert!(Mat4::epsilon_compare(view_matrix.clone(), reference_view_matrix, 1e-7f64));
+    assert!(Mat4::epsilon_compare(&view_matrix, &reference_view_matrix, 1e-7f64));
 
     let projection_matrix = Mat4::perspective(Angle::Degrees(45.0),
                                               (width as f64) / (height as f64),
@@ -414,7 +414,7 @@ fn test_vec4_unproject() {
         0.000000, 0.000000, -1.020202, -2.020202,
         0.000000, 0.000000, -1.000000, 0.000000
     ]);
-    assert!(Mat4::epsilon_compare(projection_matrix.clone(), reference_projection_matrix, 1e-6f64));
+    assert!(Mat4::epsilon_compare(&projection_matrix, &reference_projection_matrix, 1e-6f64));
 
     let proj_view_matrix = projection_matrix.clone() * view_matrix.clone();
     let ref_proj_view_matrix = Mat4::new([
@@ -423,7 +423,7 @@ fn test_vec4_unproject() {
         0.000000, 0.000000, -1.020202, 8.181819,
         0.000000, 0.000000, -1.000000, 10.000000
     ]);
-    assert!(Mat4::epsilon_compare(proj_view_matrix.clone(), ref_proj_view_matrix, 1e-6f64));
+    assert!(Mat4::epsilon_compare(&proj_view_matrix, &ref_proj_view_matrix, 1e-6f64));
 
     let ref_inv_proj_view_matrix = Mat4::new([
         0.552285, 0.000000, -0.000000, 0.000000,
@@ -431,7 +431,7 @@ fn test_vec4_unproject() {
         -0.000000, 0.000000, -4.950001, 4.050001,
         0.000000, -0.000000, -0.495000, 0.505000
     ]);
-    assert!(Mat4::epsilon_compare(proj_view_matrix.clone().inverse(), ref_inv_proj_view_matrix, 1e-5f64));
+    assert!(Mat4::epsilon_compare(&proj_view_matrix.clone().inverse(), &ref_inv_proj_view_matrix, 1e-5f64));
 
     let ray_start = Vec4::unproject(Vec4::new(100.0, 200.0, 0.0, 1.0), view_matrix, projection_matrix, width, height);
     assert!(Vec4::epsilon_compare(ray_start, Vec4::new(-0.379696, -0.069036, 9.000000, 1.0), 1e-5f64));
@@ -517,12 +517,12 @@ fn test_mat4_inverse() {
 
     // Check if multiplication is commutative.
     // A^(-1) * A == A * A^(-1)
-    assert!(Mat4::epsilon_compare(m.clone().inverse() * m.clone(),
-                                  m.clone() * m.clone().inverse(), 1e-7f64));
+    assert!(Mat4::epsilon_compare(&(m.clone().inverse() * m.clone()),
+                                  &(m.clone() * m.clone().inverse()), 1e-7f64));
 
     // Multiplication of a matrix with its inverse matrix should yield the identity matrix.
     // A^(-1) * A == I
-    assert!(Mat4::epsilon_compare(m.clone().inverse() * m, Mat4::identity(), 1e-7f64));
+    assert!(Mat4::epsilon_compare(&(m.clone().inverse() * m), &Mat4::identity(), 1e-7f64));
 }
 
 #[test]
@@ -539,7 +539,7 @@ fn test_mat4_look_at() {
         0.0, 0.0, 1.0, -10.0,
         0.0, 0.0, 0.0, 1.0
     ]);
-    assert!(Mat4::epsilon_compare(view_matrix, reference_view_matrix, 1e-7f64));
+    assert!(Mat4::epsilon_compare(&view_matrix, &reference_view_matrix, 1e-7f64));
 }
 
 #[test]
@@ -559,5 +559,5 @@ fn test_mat4_perspective() {
         0.000000, 0.000000, -1.020202, -2.020202,
         0.000000, 0.000000, -1.000000, 0.000000
     ]);
-    assert!(Mat4::epsilon_compare(projection_matrix, reference_projection_matrix, 1e-6f64));
+    assert!(Mat4::epsilon_compare(&projection_matrix, &reference_projection_matrix, 1e-6f64));
 }
