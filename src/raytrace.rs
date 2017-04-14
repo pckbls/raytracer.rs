@@ -131,85 +131,57 @@ impl Raytrace {
     }
 }
 
-/// TODO
-///
-/// Taken from:
+/// Implementation of the Möller-Trumbore intersection algorithm
+/// Pseude code has been taken from Wikipedia and translated into Rust:
 /// https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
-fn triangle_intersection(V1: Vec4, V2: Vec4, V3: Vec4, O: Vec4, D: Vec4) -> Option<f64> {
-    //glm::vec3 e1, e2;
-    //glm::vec3 P, Q, T;
-    //float det, inv_det, u, v;
-    //float t;
-
-    //const float epsilon = 0.000001;
+fn triangle_intersection(v1: Vec4, v2: Vec4, v3: Vec4, o: Vec4, d: Vec4) -> Option<f64> {
+    // TODO: Use global epsilon?
     let epsilon: f64 = 0.000001;
 
-    // find vectors for two edges sharing V1
-    //e1 = V2 - V1;
-    //e2 = V3 - V1;
-    let e1 = V2.clone() - V1.clone();
-    let e2 = V3.clone() - V1.clone();
+    // find vectors for two edges sharing v1
+    let e1 = v2.clone() - v1.clone();
+    let e2 = v3.clone() - v1.clone();
 
     // begin calculating determinant - also used to calculate u parameter
-    //P = glm::cross(D, e2);
-    let P = Vec4::cross(D.clone(), e2.clone());
+    let p = Vec4::cross(d.clone(), e2.clone());
 
     // if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
-    //det = glm::dot(e1, P);
-    //if (det > -epsilon && det < epsilon)
-    //return 0;
-    let det = Vec4::dot(e1.clone(), P.clone());
+    let det = Vec4::dot(e1.clone(), p.clone());
     if det > -epsilon && det < epsilon {
         return None;
     }
 
     // calculate invert determinant
-    //inv_det = 1.f / det;
     let inv_det = 1.0 / det;
 
-    // calculate distance from V1 to ray origin
-    //T = O - V1;
-    let T = O.clone() - V1.clone();
+    // calculate distance from v1 to ray origin
+    let t = o.clone() - v1.clone();
 
     // calculate u parameter and test bound
     // and abort if the intersection lies outside of the triangle
-    //u = glm::dot(T, P) * inv_det;
-    //if (u < 0.f || u > 1.f)
-    //return 0;
-    let u = Vec4::dot(T.clone(), P.clone()) * inv_det;
+    let u = Vec4::dot(t.clone(), p.clone()) * inv_det;
     if u < 0.0 || u > 1.0 {
         return None;
     }
 
     // prepare to test v parameter
-    //Q = glm::cross(T, e1);
-    let Q = Vec4::cross(T.clone(), e1.clone());
+    let q = Vec4::cross(t.clone(), e1.clone());
 
     // calculate V parameter and test bound
-    //v = glm::dot(D, Q) * inv_det;
-    let v = Vec4::dot(D.clone(), Q.clone()) * inv_det;
+    let v = Vec4::dot(d.clone(), q.clone()) * inv_det;
 
     // the intersection lies outside of the triangle
-    //if (v < 0.f || u + v  > 1.f)
-    //return 0;
     if v < 0.0 || u + v > 1.0 {
         return None;
     }
 
     // now check again if we've found an intersection and calculate the result
-    //t = glm::dot(e2, Q) * inv_det;
-    //if (t > epsilon)
-    //{
-    //    *out = t;
-    //    return 1;
-    //}
-    let t = Vec4::dot(e2.clone(), Q.clone()) * inv_det;
+    let t = Vec4::dot(e2.clone(), q.clone()) * inv_det;
     if t > epsilon {
         // TODO: assign out
         return Some(t)
     }
 
     // no hit, no win
-    //return 0;
     None
 }
