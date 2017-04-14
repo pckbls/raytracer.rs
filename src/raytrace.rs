@@ -4,8 +4,6 @@ use pixmap::Pixmap;
 use color::Color;
 use model::Model;
 use algebra::{ Angle, Vec4, Mat4 };
-use camera::Camera;
-use mesh;
 
 pub struct Raytrace {
     scene: Scene,
@@ -187,6 +185,9 @@ fn triangle_intersection(v1: Vec4, v2: Vec4, v3: Vec4, o: Vec4, d: Vec4) -> Opti
 
 #[test]
 fn test_raytrace() {
+    use camera::Camera;
+    use mesh;
+
     let mesh = mesh::Mesh::try_load_from_off("./meshes/teapot.off", mesh::PolygonWinding::Clockwise).unwrap();
 
     let model = Model {
