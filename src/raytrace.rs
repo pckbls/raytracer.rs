@@ -73,8 +73,6 @@ impl Raytrace {
         let mut intersections: Vec<RayTriangleIntersection> = Vec::new();
 
         for ref ray in &rays {
-            let (x, y) = ray.pixmap_coords;
-
             for ref model in &self.scene.models {
                 if let Some(intersection) = self.calculate_model_mesh_intersection(&model, &ray) {
                     intersections.push(intersection);
