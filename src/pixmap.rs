@@ -6,11 +6,13 @@ use std::io::prelude::*;
 use std::fs::File;
 
 #[allow(dead_code)]
+#[derive(Clone,PartialEq,Debug)]
 pub struct Pixel {
     color: Color
 }
 
 #[allow(dead_code)]
+#[derive(Clone,PartialEq,Debug)]
 pub struct Pixmap {
     pub width: u32,
     pub height: u32,
