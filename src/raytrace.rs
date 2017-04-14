@@ -4,6 +4,8 @@ use pixmap::Pixmap;
 use color::Color;
 use model::Model;
 use algebra::{ Angle, Vec4, Mat4 };
+use camera::Camera;
+use mesh;
 
 pub struct Raytrace {
     scene: Scene,
@@ -180,4 +182,38 @@ fn triangle_intersection(v1: Vec4, v2: Vec4, v3: Vec4, o: Vec4, d: Vec4) -> Opti
 
     // no hit, no win
     None
+}
+
+#[test]
+fn test_raytrace() {
+    let mesh = mesh::Mesh::try_load_from_off("./meshes/teapot.off", mesh::PolygonWinding::Clockwise).unwrap();
+
+    let model = Model {
+        mesh: mesh,
+        position: Vec4 {
+            x: 0.0,
+            y: -1.0,
+            z: 0.0,
+            w: 1.0
+        }
+    };
+
+    let camera = Camera {
+        position: Vec4 { x: 0.0, y: 0.0, z: 10.0, w: 1.0 },
+        look_at: Vec4 { x: 0.0, y: 0.0, z: 0.0, w: 1.0 },
+        up: Vec4 { x: 0.0, y: 1.0, z: 0.0, w: 0.0 },
+    };
+
+    let scene = Scene {
+        models: vec![model],
+        camera: camera
+    };
+
+    let pixmap = Pixmap::new(32, 32);
+
+    let mut raytrace = Raytrace::new(scene, pixmap);
+    raytrace.run();
+
+    let reference_pixmap = Pixmap::try_load_from_ppm("./testdata/raytrace.ppm".to_string()).unwrap();
+    assert_eq!(raytrace.pixmap, reference_pixmap);
 }
