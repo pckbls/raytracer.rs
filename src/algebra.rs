@@ -91,7 +91,7 @@ impl Vec4 {
 impl ops::Sub<Vec4> for Vec4 {
     type Output = Self;
 
-    fn sub(mut self, rhs: Self) -> Self {
+    fn sub(self, rhs: Self) -> Self {
         Vec4 {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
@@ -434,14 +434,14 @@ fn test_vec4_unproject() {
 
 #[test]
 fn test_mat4_multiply() {
-    let mut a = Mat4::new([
+    let a = Mat4::new([
         1.0, 2.0, 1.0, 1.0,
         0.0, 1.0, 0.0, 1.0,
         2.0, 3.0, 4.0, 1.0,
         1.0, 1.0, 1.0, 1.0
     ]);
 
-    let mut b = Mat4::new([
+    let b = Mat4::new([
         2.0, 5.0, 1.0, 1.0,
         6.0, 7.0, 1.0, 1.0,
         1.0, 8.0, 1.0, 1.0,
@@ -466,7 +466,7 @@ fn test_mat4_translate() {
 
 #[test]
 fn test_mat4_transpose() {
-    let mut m = Mat4::new([
+    let m = Mat4::new([
          1.0,  2.0,  3.0,  4.0,
          5.0,  6.0,  7.0,  8.0,
          9.0, 10.0, 11.0, 12.0,
@@ -478,7 +478,7 @@ fn test_mat4_transpose() {
 
 #[test]
 fn test_mat4_determinant() {
-    let mut m = Mat4::new([
+    let m = Mat4::new([
         5.0, 0.0, 3.0, -1.0,
         3.0, 0.0, 0.0, 4.0,
         -1.0, 2.0, 4.0, -2.0,
@@ -489,7 +489,7 @@ fn test_mat4_determinant() {
 
 #[test]
 fn test_mat4_inverse() {
-    let mut m = Mat4::new([
+    let m = Mat4::new([
         2.0, 5.0, 0.0, 8.0,
         1.0, 4.0, 2.0, 6.0,
         7.0, 8.0, 9.0, 3.0,
