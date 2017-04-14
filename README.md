@@ -14,15 +14,17 @@
 ## Version 0.1.1
 
 * Fix render output being upside down
-* Render the intersection with a mesh that is closest to the camera
+* Implement ppm loader
+* Implement raytrace test
 * Clean up the mess
   * Do not simply use `.clone()` everywhere to satisfy the Rust compiler, instead try to use references whenever possible
-  * Split math stuff up into smaller files
-  * Eliminate all warnings
-  * Resolve all `TODO` comments
+  * ~~Split math stuff up into smaller files~~
+  * ~~Eliminate all warnings~~
+  * ~~Resolve all `TODO` comments~~
 
 ## Version 0.2.0
 
+* Only render the mesh intersection that is closest to the camera
 * Print progress while rendering
 * Allow multiple objects to be rendered
 * Enable lighting
