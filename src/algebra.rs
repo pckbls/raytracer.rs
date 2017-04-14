@@ -383,7 +383,7 @@ fn test_vec4_cross() {
 #[test]
 fn test_vec4_normalize() {
     let x = Vec4 { x: 0.0, y: 3.0, z: 0.0, w: 0.0 };
-    assert_eq!(x.clone().normalize(), Vec4 { x: 0.0, y: 1.0, z: 0.0, w: 0.0 });
+    assert_eq!(x.normalize(), Vec4 { x: 0.0, y: 1.0, z: 0.0, w: 0.0 });
 }
 
 #[test]
