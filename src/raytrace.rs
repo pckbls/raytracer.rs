@@ -72,11 +72,11 @@ impl Raytrace {
     fn calculate_triangle_intersections(&self, rays: Vec<Ray>) -> Vec<RayTriangleIntersection> {
         let mut intersections: Vec<RayTriangleIntersection> = Vec::new();
 
-        for ray in rays {
+        for ref ray in &rays {
             let (x, y) = ray.pixmap_coords;
 
             for ref model in &self.scene.models {
-                if let Some(intersection) = self.calculate_model_mesh_intersection(&model, ray.clone()) {
+                if let Some(intersection) = self.calculate_model_mesh_intersection(&model, &ray) {
                     intersections.push(intersection);
                 }
             }
@@ -85,7 +85,7 @@ impl Raytrace {
         intersections
     }
 
-    fn calculate_model_mesh_intersection(&self, model: &Model, ray: Ray) -> Option<RayTriangleIntersection> {
+    fn calculate_model_mesh_intersection(&self, model: &Model, ray: &Ray) -> Option<RayTriangleIntersection> {
         let mm = self.calc_model_matrix(&model);
 
         // TODO: read about Box
