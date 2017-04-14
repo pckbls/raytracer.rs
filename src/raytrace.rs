@@ -54,10 +54,10 @@ impl Raytrace {
             for y in 0..self.pixmap.height {
                 let ray = Ray {
                     start: Vec4::unproject(Vec4::new(x as f64, y as f64, 0.0, 1.0),
-                                           view_matrix.clone(), projection_matrix.clone(),
+                                           &view_matrix, &projection_matrix,
                                            self.pixmap.width, self.pixmap.height),
                     end: Vec4::unproject(Vec4::new(x as f64, y as f64, 1.0, 1.0),
-                                         view_matrix.clone(), projection_matrix.clone(),
+                                         &view_matrix, &projection_matrix,
                                          self.pixmap.width, self.pixmap.height),
                     pixmap_coords: (x, y)
                 };

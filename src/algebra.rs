@@ -57,8 +57,8 @@ impl Vec4 {
     }
 
     #[allow(dead_code)]
-    pub fn unproject(vec: Vec4, model_matrix: Mat4, projection_matrix: Mat4, width: u32, height: u32) -> Vec4 {
-        let inverse = (projection_matrix * model_matrix).inverse();
+    pub fn unproject(vec: Vec4, model_matrix: &Mat4, projection_matrix: &Mat4, width: u32, height: u32) -> Vec4 {
+        let inverse = (projection_matrix.clone() * model_matrix.clone()).inverse();
         let mut tmp = vec.clone();
 
         tmp.x /= width as f64;
@@ -432,7 +432,7 @@ fn test_vec4_unproject() {
     ]);
     assert!(Mat4::epsilon_compare(&proj_view_matrix.clone().inverse(), &ref_inv_proj_view_matrix, 1e-5f64));
 
-    let ray_start = Vec4::unproject(Vec4::new(100.0, 200.0, 0.0, 1.0), view_matrix, projection_matrix, width, height);
+    let ray_start = Vec4::unproject(Vec4::new(100.0, 200.0, 0.0, 1.0), &view_matrix, &projection_matrix, width, height);
     assert!(Vec4::epsilon_compare(ray_start, Vec4::new(-0.379696, -0.069036, 9.000000, 1.0), 1e-5f64));
 }
 
