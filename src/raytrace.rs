@@ -78,7 +78,7 @@ impl Raytrace {
         for ray in rays {
             let (x, y) = ray.pixmap_coords;
 
-            for model in self.scene.models.clone() {
+            for ref model in &self.scene.models {
                 if let Some(intersection) = self.calculate_model_mesh_intersection(&model, ray.clone()) {
                     intersections.push(intersection);
                 }
@@ -94,7 +94,7 @@ impl Raytrace {
         // TODO: read about Box
         // let closest_intersection;
 
-        for face in model.mesh.faces.clone() {
+        for ref face in &model.mesh.faces {
             let v0 = Vec4::new(model.mesh.vertices[face.a].x, model.mesh.vertices[face.a].y, model.mesh.vertices[face.a].z, model.mesh.vertices[face.a].w);
             let v1 = Vec4::new(model.mesh.vertices[face.b].x, model.mesh.vertices[face.b].y, model.mesh.vertices[face.b].z, model.mesh.vertices[face.b].w);
             let v2 = Vec4::new(model.mesh.vertices[face.c].x, model.mesh.vertices[face.c].y, model.mesh.vertices[face.c].z, model.mesh.vertices[face.c].w);
