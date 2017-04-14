@@ -33,6 +33,7 @@ impl Mesh {
     /// Loads a mesh from an OFF file.
     /// See: http://shape.cs.princeton.edu/benchmark/documentation/off_format.html
     pub fn try_load_from_off(path: &str, polygon_winding: PolygonWinding) -> Result<Self, String> {
+        // TODO: use String instead of &str for consistency with pixmap?
         // TODO: do not use unwrap() statements, use try!() instead, NOPE: use ? question mark
         // operator instead.
         // TODO: do not use panic!() statements, see above
