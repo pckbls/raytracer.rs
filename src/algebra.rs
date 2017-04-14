@@ -238,8 +238,7 @@ impl Mat4 {
         let a32 = self.data[14];
         let a33 = self.data[15];
 
-        let mut m2 = Mat4::zeros();
-        m2.data = [
+        Mat4::new([
              (a11 * (a22 * a33 - a23 * a32) - a21 * (a12 * a33 - a13 * a32) + a31 * (a12 * a23 - a13 * a22)),
             -(a01 * (a22 * a33 - a23 * a32) - a21 * (a02 * a33 - a03 * a32) + a31 * (a02 * a23 - a03 * a22)),
              (a01 * (a12 * a33 - a13 * a32) - a11 * (a02 * a33 - a03 * a32) + a31 * (a02 * a13 - a03 * a12)),
@@ -256,8 +255,7 @@ impl Mat4 {
              (a00 * (a21 * a32 - a22 * a31) - a20 * (a01 * a32 - a02 * a31) + a30 * (a01 * a22 - a02 * a21)),
             -(a00 * (a11 * a32 - a12 * a31) - a10 * (a01 * a32 - a02 * a31) + a30 * (a01 * a12 - a02 * a11)),
              (a00 * (a11 * a22 - a12 * a21) - a10 * (a01 * a22 - a02 * a21) + a20 * (a01 * a12 - a02 * a11))
-        ];
-        m2
+        ])
     }
 
     /// Inverts a matrix.
@@ -286,14 +284,12 @@ impl Mat4 {
         let s = Vec4::cross(&f, &up).normalize();
         let u = Vec4::cross(&s, &f);
 
-        let mut m = Mat4::zeros();
-        m.data = [
+        Mat4::new([
             s.x, s.y, s.z, -(s * eye.clone()),
             u.x, u.y, u.z, -(u * eye.clone()),
             -f.x, -f.y, -f.z, (f * eye.clone()),
             0.0, 0.0, 0.0, 1.0
-        ];
-        m
+        ])
     }
 
     /// TODO
@@ -438,21 +434,19 @@ fn test_vec4_unproject() {
 
 #[test]
 fn test_mat4_multiply() {
-    let mut a = Mat4::zeros();
-    a.data = [
+    let mut a = Mat4::new([
         1.0, 2.0, 1.0, 1.0,
         0.0, 1.0, 0.0, 1.0,
         2.0, 3.0, 4.0, 1.0,
         1.0, 1.0, 1.0, 1.0
-    ];
+    ]);
 
-    let mut b = Mat4::zeros();
-    b.data = [
+    let mut b = Mat4::new([
         2.0, 5.0, 1.0, 1.0,
         6.0, 7.0, 1.0, 1.0,
         1.0, 8.0, 1.0, 1.0,
         1.0, 1.0, 1.0, 1.0
-    ];
+    ]);
 
     assert!((a*b).data == [
         16.0, 28.0, 5.0, 5.0,
@@ -472,38 +466,35 @@ fn test_mat4_translate() {
 
 #[test]
 fn test_mat4_transpose() {
-    let mut m = Mat4::zeros();
-    m.data = [
+    let mut m = Mat4::new([
          1.0,  2.0,  3.0,  4.0,
          5.0,  6.0,  7.0,  8.0,
          9.0, 10.0, 11.0, 12.0,
         13.0, 14.0, 15.0, 16.0
-    ];
+    ]);
     assert!(m.clone().transpose() != m);
     assert!(m.clone().transpose().transpose() == m);
 }
 
 #[test]
 fn test_mat4_determinant() {
-    let mut m = Mat4::zeros();
-    m.data = [
+    let mut m = Mat4::new([
         5.0, 0.0, 3.0, -1.0,
         3.0, 0.0, 0.0, 4.0,
         -1.0, 2.0, 4.0, -2.0,
         1.0, 0.0, 0.0, 5.0
-    ];
+    ]);
     assert!(m.determinant() == 66.0);
 }
 
 #[test]
 fn test_mat4_inverse() {
-    let mut m = Mat4::zeros();
-    m.data = [
+    let mut m = Mat4::new([
         2.0, 5.0, 0.0, 8.0,
         1.0, 4.0, 2.0, 6.0,
         7.0, 8.0, 9.0, 3.0,
         1.0, 5.0, 7.0, 8.0
-    ];
+    ]);
 
     // Make sure that the determinante and adjugate are correct.
     assert!(m.clone().determinant() == 179.0);
