@@ -43,8 +43,7 @@ impl Raytrace {
                       self.scene.camera.up.clone())
     }
 
-    // TODO: why ref?! :-(
-    fn calc_model_matrix(&self, ref model: &Model) -> Mat4 {
+    fn calc_model_matrix(&self, model: &Model) -> Mat4 {
         Mat4::translate(model.position.clone())
     }
 
