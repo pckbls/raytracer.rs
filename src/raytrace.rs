@@ -145,7 +145,7 @@ fn triangle_intersection(v1: Vec4, v2: Vec4, v3: Vec4, o: Vec4, d: Vec4) -> Opti
     let p = Vec4::cross(&d, &e2);
 
     // if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
-    let det = Vec4::dot(e1.clone(), p.clone());
+    let det = Vec4::dot(&e1, &p);
     if det > -epsilon && det < epsilon {
         return None;
     }
@@ -158,7 +158,7 @@ fn triangle_intersection(v1: Vec4, v2: Vec4, v3: Vec4, o: Vec4, d: Vec4) -> Opti
 
     // calculate u parameter and test bound
     // and abort if the intersection lies outside of the triangle
-    let u = Vec4::dot(t.clone(), p.clone()) * inv_det;
+    let u = Vec4::dot(&t, &p) * inv_det;
     if u < 0.0 || u > 1.0 {
         return None;
     }
@@ -167,7 +167,7 @@ fn triangle_intersection(v1: Vec4, v2: Vec4, v3: Vec4, o: Vec4, d: Vec4) -> Opti
     let q = Vec4::cross(&t, &e1);
 
     // calculate V parameter and test bound
-    let v = Vec4::dot(d.clone(), q.clone()) * inv_det;
+    let v = Vec4::dot(&d, &q) * inv_det;
 
     // the intersection lies outside of the triangle
     if v < 0.0 || u + v > 1.0 {
@@ -175,7 +175,7 @@ fn triangle_intersection(v1: Vec4, v2: Vec4, v3: Vec4, o: Vec4, d: Vec4) -> Opti
     }
 
     // now check again if we've found an intersection and calculate the result
-    let t = Vec4::dot(e2.clone(), q.clone()) * inv_det;
+    let t = Vec4::dot(&e2, &q) * inv_det;
     if t > epsilon {
         // TODO: assign out
         return Some(t)

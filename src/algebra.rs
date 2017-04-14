@@ -52,8 +52,8 @@ impl Vec4 {
     }
 
     #[allow(dead_code)]
-    pub fn dot(a: Vec4, b: Vec4) -> f64 {
-        a * b
+    pub fn dot(a: &Vec4, b: &Vec4) -> f64 {
+        a.clone() * b.clone()
     }
 
     #[allow(dead_code)]
