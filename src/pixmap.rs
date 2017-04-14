@@ -65,7 +65,9 @@ impl Pixmap {
         f.write("255\n".as_bytes())?;
 
         // Write pixmap contents.
-        for y in 0..self.height {
+        // TODO: y iteration direction has been inversed to flip image upside-down
+        // but I'm unsure if this was the right way to fix the issue.
+        for y in (0..self.height).rev() {
             for x in 0..self.width {
                 let index = self.coords_to_index(x, y) as usize;
                 let ref pixel = &self.pixels[index];
