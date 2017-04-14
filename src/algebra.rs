@@ -161,7 +161,7 @@ impl Mat4 {
     /// Generates a translation matrix by filling up the last column
     /// with the given input vector.
     pub fn translate(v: &Vec4) -> Mat4 {
-        let mut matrix = Mat4::zeros();
+        let mut matrix = Mat4::identity();
         matrix.data[3] = v.x;
         matrix.data[7] = v.y;
         matrix.data[11] = v.z;
@@ -458,10 +458,14 @@ fn test_mat4_multiply() {
 
 #[test]
 fn test_mat4_translate() {
-    let position = Vec4 { x: 1.0, y: 1.0, z: 1.0, w: 1.0 };
-    let matrix = Mat4::translate(&position);
-    let zero_vec = Vec4 { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
-    assert!(matrix*zero_vec == position)
+    let matrix = Mat4::translate(&Vec4::new(0.0, -1.0, 0.0, 1.0));
+    let reference_matrix = Mat4::new([
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, -1.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0,
+    ]);
+    assert_eq!(matrix, reference_matrix);
 }
 
 #[test]
