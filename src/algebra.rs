@@ -262,8 +262,7 @@ impl Mat4 {
 
     /// Inverts a matrix.
     pub fn inverse(self) -> Self {
-        // TODO: clone, clone, meh...
-        1.0 / self.clone().determinant() * self.clone().adjugate()
+        1.0 / self.determinant() * self.adjugate()
     }
 
     /// TODO
