@@ -57,7 +57,7 @@ impl Pixmap {
 
     /// Saves the pixmap's contents as a PPM file
     #[allow(dead_code)]
-    pub fn save_as_ppm(self, path: String) -> Result<(), io::Error> {
+    pub fn save_as_ppm(&self, path: String) -> Result<(), io::Error> {
         let f = File::create(path)?;
         let mut f = BufWriter::new(f);
 
