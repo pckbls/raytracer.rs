@@ -88,6 +88,19 @@ impl Vec4 {
     }
 }
 
+impl ops::Add<Vec4> for Vec4 {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self {
+        Vec4 {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+            w: self.w + rhs.w,
+        }
+    }
+}
+
 impl ops::Sub<Vec4> for Vec4 {
     type Output = Self;
 
