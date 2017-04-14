@@ -126,6 +126,18 @@ impl ops::Mul<Vec4> for Vec4 {
     }
 }
 
+impl ops::Mul<Vec4> for f64 {
+    type Output = Vec4;
+
+    fn mul(self, mut rhs: Vec4) -> Vec4 {
+        rhs.x *= self;
+        rhs.y *= self;
+        rhs.z *= self;
+        rhs.w *= self;
+        rhs
+    }
+}
+
 impl ops::Div<f64> for Vec4 {
     type Output = Vec4;
 
