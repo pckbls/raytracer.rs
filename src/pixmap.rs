@@ -125,8 +125,8 @@ fn test_draw() {
 fn test_save_load_ppm() {
     let mut pixmap = Pixmap::new(4, 4);
     pixmap.pixels[0].color.r = 5;
-    let result = pixmap.save_as_ppm("./testdata/pixmap_save_test.ppm".to_string());
+    let result = pixmap.save_as_ppm("./testdata/output/pixmap_save_test.ppm".to_string());
     assert!(result.is_ok());
-    Pixmap::try_load_from_ppm("./testdata/pixmap_save_test.ppm".to_string()).unwrap();
+    Pixmap::try_load_from_ppm("./testdata/output/pixmap_save_test.ppm".to_string()).unwrap();
 }
 
