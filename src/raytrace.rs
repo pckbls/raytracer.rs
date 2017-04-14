@@ -94,10 +94,12 @@ impl Raytrace {
             let v1 = mm.clone() * Vec4::new(model.mesh.vertices[face.b].x, model.mesh.vertices[face.b].y, model.mesh.vertices[face.b].z, model.mesh.vertices[face.b].w);
             let v2 = mm.clone() * Vec4::new(model.mesh.vertices[face.c].x, model.mesh.vertices[face.c].y, model.mesh.vertices[face.c].z, model.mesh.vertices[face.c].w);
 
-            if let Some(t) = triangle_intersection(v0, v1, v2, ray.start.clone(), (ray.end.clone()-ray.start.clone()).normalize()) {
+            let ray_direction = (ray.end.clone() - ray.start.clone()).normalize();
+
+            if let Some(t) = triangle_intersection(v0, v1, v2, ray.start.clone(), ray_direction.clone()) {
                 let intersection = RayTriangleIntersection {
                     ray: ray.clone(),
-                    hit_position: Vec4::new(0.0, 0.0, 0.0, 0.0) // TODO
+                    hit_position: ray.start.clone() + t * ray_direction.clone()
                 };
                 return Some(intersection);
             }
