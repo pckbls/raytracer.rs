@@ -38,9 +38,9 @@ impl Raytrace {
     }
 
     fn calc_view_matrix(&self) -> Mat4 {
-        Mat4::look_at(self.scene.camera.position.clone(),
-                      self.scene.camera.look_at.clone(),
-                      self.scene.camera.up.clone())
+        Mat4::look_at(&self.scene.camera.position,
+                      &self.scene.camera.look_at,
+                      &self.scene.camera.up)
     }
 
     fn calc_model_matrix(&self, model: &Model) -> Mat4 {

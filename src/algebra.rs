@@ -282,8 +282,8 @@ impl Mat4 {
     }
 
     /// TODO
-    pub fn look_at(eye: Vec4, center: Vec4, up: Vec4) -> Self {
-        let f = (center - eye.clone()).normalize();
+    pub fn look_at(eye: &Vec4, center: &Vec4, up: &Vec4) -> Self {
+        let f = (center.clone() - eye.clone()).normalize();
         let s = Vec4::cross(&f, &up).normalize();
         let u = Vec4::cross(&s, &f);
 
@@ -395,7 +395,7 @@ fn test_vec4_unproject() {
     let center = Vec4 { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
     let up = Vec4 { x: 0.0, y: 1.0, z: 0.0, w: 0.0 };
 
-    let view_matrix = Mat4::look_at(eye, center, up);
+    let view_matrix = Mat4::look_at(&eye, &center, &up);
     let reference_view_matrix = Mat4::new([
         1.0, 0.0, 0.0, 0.0,
         0.0, 1.0, 0.0, 0.0,
@@ -532,7 +532,7 @@ fn test_mat4_look_at() {
     let center = Vec4 { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
     let up = Vec4 { x: 0.0, y: 1.0, z: 0.0, w: 0.0 };
 
-    let view_matrix = Mat4::look_at(eye, center, up);
+    let view_matrix = Mat4::look_at(&eye, &center, &up);
     let reference_view_matrix = Mat4::new([
         1.0, 0.0, 0.0, 0.0,
         0.0, 1.0, 0.0, 0.0,
