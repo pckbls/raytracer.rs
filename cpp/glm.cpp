@@ -28,4 +28,7 @@ int main(int argc, char *argv[]) {
     glm::vec3 ray_start = glm::unProject(glm::vec3(100.0, 200.0, 0.0f), view_matrix, projection_matrix, viewport);
 
     std::cout << "unProject:" << glm::to_string(ray_start) << std::endl;
+
+    glm::mat4 translation = glm::translate(glm::vec3(0.0f, -1.0f, 0.0f));
+    std::cout << "translation: " << glm::to_string(translation) << std::endl;
 }
