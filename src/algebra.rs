@@ -92,11 +92,12 @@ impl ops::Sub<Vec4> for Vec4 {
     type Output = Self;
 
     fn sub(mut self, rhs: Self) -> Self {
-        self.x -= rhs.x;
-        self.y -= rhs.y;
-        self.z -= rhs.z;
-        self.w -= rhs.w;
-        self
+        Vec4 {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+            w: self.w - rhs.w,
+        }
     }
 }
 
@@ -159,7 +160,7 @@ impl Mat4 {
 
     /// Generates a translation matrix by filling up the last column
     /// with the given input vector.
-    pub fn translate(v: Vec4) -> Mat4 {
+    pub fn translate(v: &Vec4) -> Mat4 {
         let mut matrix = Mat4::zeros();
         matrix.data[3] = v.x;
         matrix.data[7] = v.y;
@@ -465,7 +466,7 @@ fn test_mat4_multiply() {
 #[test]
 fn test_mat4_translate() {
     let position = Vec4 { x: 1.0, y: 1.0, z: 1.0, w: 1.0 };
-    let matrix = Mat4::translate(position.clone());
+    let matrix = Mat4::translate(&position);
     let zero_vec = Vec4 { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
     assert!(matrix*zero_vec == position)
 }

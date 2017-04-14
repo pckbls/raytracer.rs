@@ -44,7 +44,7 @@ impl Raytrace {
     }
 
     fn calc_model_matrix(&self, model: &Model) -> Mat4 {
-        Mat4::translate(model.position.clone())
+        Mat4::translate(&model.position)
     }
 
     fn generate_primary_rays(&self, view_matrix: Mat4, projection_matrix: Mat4) -> Vec<Ray> {
