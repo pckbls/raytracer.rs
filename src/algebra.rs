@@ -38,7 +38,7 @@ impl Vec4 {
     }
 
     #[allow(dead_code)]
-    pub fn cross(a: Vec4, b: Vec4) -> Self {
+    pub fn cross(a: &Vec4, b: &Vec4) -> Self {
         if a.w != 0.0 || b.w != 0.0 {
             panic!("Cross product for a Vec4 with w-component != 0.0 does not make sense.");
         }
@@ -283,8 +283,8 @@ impl Mat4 {
     /// TODO
     pub fn look_at(eye: Vec4, center: Vec4, up: Vec4) -> Self {
         let f = (center - eye.clone()).normalize();
-        let s = Vec4::cross(f.clone(), up).normalize();
-        let u = Vec4::cross(s.clone(), f.clone());
+        let s = Vec4::cross(&f, &up).normalize();
+        let u = Vec4::cross(&s, &f);
 
         let mut m = Mat4::zeros();
         m.data = [
@@ -375,7 +375,7 @@ impl ops::Mul<Vec4> for Mat4 {
 fn test_vec4_cross() {
     let a = Vec4 { x: 3.0, y: -3.0, z: 1.0, w: 0.0 };
     let b = Vec4 { x: 4.0, y: 9.0, z: 2.0, w: 0.0 };
-    let res = Vec4::cross(a, b);
+    let res = Vec4::cross(&a, &b);
     assert_eq!(res, Vec4 { x: -15.0, y: -2.0, z: 39.0, w: 0.0 });
 }
 

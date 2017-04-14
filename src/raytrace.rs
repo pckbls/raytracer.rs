@@ -142,7 +142,7 @@ fn triangle_intersection(v1: Vec4, v2: Vec4, v3: Vec4, o: Vec4, d: Vec4) -> Opti
     let e2 = v3.clone() - v1.clone();
 
     // begin calculating determinant - also used to calculate u parameter
-    let p = Vec4::cross(d.clone(), e2.clone());
+    let p = Vec4::cross(&d, &e2);
 
     // if determinant is near zero, ray lies in plane of triangle or ray is parallel to plane of triangle
     let det = Vec4::dot(e1.clone(), p.clone());
@@ -164,7 +164,7 @@ fn triangle_intersection(v1: Vec4, v2: Vec4, v3: Vec4, o: Vec4, d: Vec4) -> Opti
     }
 
     // prepare to test v parameter
-    let q = Vec4::cross(t.clone(), e1.clone());
+    let q = Vec4::cross(&t, &e1);
 
     // calculate V parameter and test bound
     let v = Vec4::dot(d.clone(), q.clone()) * inv_det;
