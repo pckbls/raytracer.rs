@@ -155,7 +155,7 @@ impl ops::Div<f64> for Vec4 {
         self.x /= rhs;
         self.y /= rhs;
         self.z /= rhs;
-        self.w /= rhs;
+        self.w /= rhs; // TODO: is this correct?
         self
     }
 }
