@@ -403,6 +403,13 @@ impl ops::Mul<Vec4> for Mat4 {
 }
 
 #[test]
+fn test_vec4_dot() {
+    let a = Vec4::new(1.0, 2.0, 3.0, 0.0);
+    let b = Vec4::new(4.0, 5.0, 6.0, 0.0);
+    assert_eq!(Vec4::dot(&a, &b), 32.0);
+}
+
+#[test]
 fn test_vec4_cross() {
     let a = Vec4 { x: 3.0, y: -3.0, z: 1.0, w: 0.0 };
     let b = Vec4 { x: 4.0, y: 9.0, z: 2.0, w: 0.0 };
