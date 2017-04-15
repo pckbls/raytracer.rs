@@ -121,19 +121,24 @@ impl Raytrace {
         for ref mut intersection in intersections.iter_mut() {
             let normal_matrix = intersection.model.calc_normal_matrix();
 
-            intersection.color = Color { r: 0, g: 0, b: 0 };
-
             // TODO: Apply normal_matrix
             // TODO: Remove invert() ?
             let face_normal = intersection.face.normal.clone().invert().normalize();
 
-            // Apply the diffuse lighting part
-            let mut intensity = Vec4::dot(&(intersection.hit_position.clone() - Vec4::new(3.0, 3.0, 3.0, 1.0)).normalize(), &face_normal);
-            if intensity < 0.0 {
-                intensity = 0.0;
-            }
+            for ref light_source in self.scene.light_sources.iter() {
+                // Apply the ambient part
+                intersection.color = intersection.color.clone() + light_source.ambient_color.clone();
 
-            intersection.color.b = (255.0 * intensity) as u8;
+                // Apply the diffuse lighting part
+                let mut intensity = Vec4::dot(&(intersection.hit_position.clone() - Vec4::new(3.0, 3.0, 3.0, 1.0)).normalize(), &face_normal);
+                if intensity < 0.0 {
+                    intensity = 0.0;
+                }
+                intersection.color = intersection.color.clone() + intensity * light_source.diffuse_color.clone();
+
+                // Apply the specular highlight
+                // TODO
+            }
         }
     }
 
@@ -217,6 +222,7 @@ fn triangle_intersection(v1: Vec4, v2: Vec4, v3: Vec4, o: Vec4, d: Vec4) -> Opti
 #[test]
 fn test_raytrace() {
     use camera::Camera;
+    use lighting::LightSource;
     use mesh;
 
     let mesh = mesh::Mesh::try_load_from_off("./meshes/teapot.off", mesh::PolygonWinding::Clockwise).unwrap();
@@ -237,8 +243,15 @@ fn test_raytrace() {
         up: Vec4 { x: 0.0, y: 1.0, z: 0.0, w: 0.0 },
     };
 
+    let ambient_light_source = LightSource {
+        position: Vec4::new(0.0, 0.0, 0.0, 1.0),
+        ambient_color: Color { r: 255, g: 0, b: 0 },
+        diffuse_color: Color { r: 0, g: 0, b: 0 }
+    };
+
     let scene = Scene {
         models: vec![model],
+        light_sources: vec![ambient_light_source],
         camera: camera
     };
 
@@ -246,6 +259,7 @@ fn test_raytrace() {
 
     let mut raytrace = Raytrace::new(scene, pixmap);
     raytrace.run();
+    raytrace.pixmap.save_as_ppm("./testdata/output/raytrace.ppm".to_string()).unwrap();
 
     let reference_pixmap = Pixmap::try_load_from_ppm("./testdata/raytrace.ppm".to_string()).unwrap();
     assert_eq!(raytrace.pixmap, reference_pixmap);

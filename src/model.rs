@@ -26,7 +26,7 @@ fn test_calc_model_matrix() {
 
 #[test]
 fn test_calc_normal_matrix() {
-    use Mesh::PolygonWinding;
+    use mesh::PolygonWinding;
 
     let model = Model {
         position: Vec4::new(0.0, -1.0, 0.0, 1.0),

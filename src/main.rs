@@ -3,6 +3,7 @@ mod scene;
 mod algebra;
 mod camera;
 mod model;
+mod lighting;
 mod color;
 mod pixmap;
 mod raytrace;
@@ -31,10 +32,22 @@ fn main() {
 
     let scene = scene::Scene {
         models: vec![model],
+        light_sources: vec![
+            lighting::LightSource {
+                position: Vec4::new(0.0, 0.0, 0.0, 1.0),
+                ambient_color: color::Color { r: 20, g: 20, b: 20 },
+                diffuse_color: color::Color { r: 0, g: 0, b: 0 },
+            },
+            lighting::LightSource {
+                position: Vec4::new(0.0, 3.0, 3.0, 1.0),
+                ambient_color: color::Color { r: 0, g: 0, b: 0 },
+                diffuse_color: color::Color { r: 0, g: 100, b: 200 },
+            }
+        ],
         camera: camera
     };
 
-    let pixmap = pixmap::Pixmap::new(64, 64);
+    let pixmap = pixmap::Pixmap::new(128, 128);
 
     let mut raytrace = raytrace::Raytrace::new(scene, pixmap);
 
