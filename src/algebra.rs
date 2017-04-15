@@ -75,7 +75,7 @@ impl Vec4 {
     }
 
     /// TODO
-    pub fn epsilon_compare(a: Self, b: Self, epsilon: f64) -> bool {
+    pub fn epsilon_compare(a: &Self, b: &Self, epsilon: f64) -> bool {
         if     (a.x-b.x).abs() > epsilon
             || (a.y-b.y).abs() > epsilon
             || (a.z-b.z).abs() > epsilon
@@ -454,7 +454,7 @@ fn test_vec4_unproject() {
     assert!(Mat4::epsilon_compare(&proj_view_matrix.clone().inverse(), &ref_inv_proj_view_matrix, 1e-5f64));
 
     let ray_start = Vec4::unproject(Vec4::new(100.0, 200.0, 0.0, 1.0), &view_matrix, &projection_matrix, width, height);
-    assert!(Vec4::epsilon_compare(ray_start, Vec4::new(-0.379696, -0.069036, 9.000000, 1.0), 1e-5f64));
+    assert!(Vec4::epsilon_compare(&ray_start, &Vec4::new(-0.379696, -0.069036, 9.000000, 1.0), 1e-5f64));
 }
 
 #[test]
