@@ -5,6 +5,13 @@ use std::io::prelude::*;
 use std::fs::File;
 use algebra::Vec4;
 
+#[allow(dead_code)]
+#[derive(Clone)]
+pub struct Vertex {
+    pub position: Vec4,
+    pub normal: Vec4
+}
+
 /// Faces consist of exactly three vertices.
 /// a, b and c contain indices for our vertices vector.
 #[allow(dead_code)]
@@ -12,7 +19,8 @@ use algebra::Vec4;
 pub struct Face {
     pub a: usize,
     pub b: usize,
-    pub c: usize
+    pub c: usize,
+    pub normal: Vec4
 }
 
 #[allow(dead_code)]
@@ -24,7 +32,7 @@ pub enum PolygonWinding {
 #[allow(dead_code)]
 #[derive(Clone)]
 pub struct Mesh {
-    pub vertices: Vec<Vec4>,
+    pub vertices: Vec<Vertex>,
     pub faces: Vec<Face>
 }
 
@@ -118,8 +126,8 @@ impl Mesh {
                     // TODO: check if vertex ids exists
 
                     let face = match polygon_winding {
-                        PolygonWinding::Clockwise => Face { a: a, b: b, c: c },
-                        PolygonWinding::CounterClockwise => Face { a: a, b: c, c: b },
+                        PolygonWinding::Clockwise => Face { a: a, b: b, c: c, normal: Vec4::new(0.0, 0.0, 0.0, 0.0) },
+                        PolygonWinding::CounterClockwise => Face { a: a, b: c, c: b, normal: Vec4::new(0.0, 0.0, 0.0, 0.0) },
                     };
                     faces.push(face);
 
@@ -132,11 +140,50 @@ impl Mesh {
         }
 
         match current_state {
-            FSM::Accepted => Ok(Mesh {
-                vertices: vertices,
-                faces: faces
-            }),
+            FSM::Accepted => Ok(Mesh::calculate_normals(vertices, faces)),
             _ => return Err("Something bad happened.".to_string())
+        }
+    }
+
+    fn calculate_normals(vertex_positions: Vec<Vec4>, faces: Vec<Face>) -> Self {
+        let mut vertices: Vec<Vertex> = Vec::new();
+        let mut faces: Vec<Face> = faces.clone();
+
+        // TODO: Use map?
+        for vertex_position in vertex_positions.clone() {
+            vertices.push(Vertex {
+                position: vertex_position,
+                normal: Vec4::new(0.0, 0.0, 0.0, 0.0)
+            });
+        }
+
+        for ref mut face in faces.iter_mut() {
+            let v0 = vertex_positions[face.a].clone();
+            let v1 = vertex_positions[face.b].clone();
+            let v2 = vertex_positions[face.c].clone();
+
+            let u = v1.clone() - v0.clone();
+            let v = v2.clone() - v0.clone();
+
+            let normal = Vec4::cross(&u, &v).normalize();
+
+            vertices[face.a].normal = vertices[face.a].normal.clone() + normal.clone();
+            vertices[face.b].normal = vertices[face.b].normal.clone() + normal.clone();
+            vertices[face.c].normal = vertices[face.c].normal.clone() + normal.clone();
+        }
+
+        for ref mut vertex in vertices.iter_mut() {
+            vertex.normal = vertex.normal.clone().normalize();
+        }
+
+        for ref mut face in faces.iter_mut() {
+            let normal = vertices[face.a].normal.clone() + vertices[face.b].normal.clone() + vertices[face.c].normal.clone();
+            face.normal = normal.normalize(); // TODO: correct?
+        }
+
+        Mesh {
+            vertices: vertices,
+            faces: faces
         }
     }
 }
@@ -171,3 +218,9 @@ fn test_mesh_not_exists() {
     assert!(mesh.is_err());
 }
 
+#[test]
+fn test_calculate_normals() {
+    let mesh = Mesh::try_load_from_off("meshes/teapot.off", PolygonWinding::Clockwise).unwrap();
+    assert!(Vec4::epsilon_compare(&mesh.vertices[0].normal, &Vec4::new(0.075661, -0.997133, -0.000855, 0.0), 1e-6f64));
+    assert!(Vec4::epsilon_compare(&mesh.faces[0].normal, &Vec4::new(-0.185414, -0.724806, 0.351416, 0.0), 1e-6f64));
+}
