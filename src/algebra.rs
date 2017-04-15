@@ -38,6 +38,16 @@ impl Vec4 {
     }
 
     #[allow(dead_code)]
+    pub fn invert(mut self) -> Self {
+        // TODO: maybe we should check if w == 0 because inverting points makes no sense.
+        self.x = -self.x;
+        self.y = -self.y;
+        self.z = -self.z;
+        self.w = -self.w; // TODO: is this right?
+        self
+    }
+
+    #[allow(dead_code)]
     pub fn cross(a: &Vec4, b: &Vec4) -> Self {
         if a.w != 0.0 || b.w != 0.0 {
             panic!("Cross product for a Vec4 with w-component != 0.0 does not make sense.");
