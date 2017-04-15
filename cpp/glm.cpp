@@ -31,4 +31,6 @@ int main(int argc, char *argv[]) {
 
     glm::mat4 translation = glm::translate(glm::vec3(0.0f, -1.0f, 0.0f));
     std::cout << "translation: " << glm::to_string(translation) << std::endl;
+
+    std::cout << "dot reference " << glm::dot(glm::vec3(1.0, 2.0, 3.0), glm::vec3(4.0, 5.0, 6.0)) << std::endl;
 }
