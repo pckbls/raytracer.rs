@@ -344,6 +344,39 @@ impl Mat4 {
         m.data[11] = -(2.0 * z_far * z_near) / (z_far - z_near);
         m
     }
+
+    /// TODO
+    pub fn rotate(m: &Mat4, angle: Angle, v: &Vec4) -> Self {
+        let (c, s): (f64, f64) = match angle {
+            Angle::Degrees(a) => (a.cos(), a.sin()),
+            _ => panic!("Not implemented.")
+        };
+        let axis = v.clone().normalize();
+
+        let mut result = Mat4::zeros();
+
+        result.data[0] = c + (1.0-c) * axis.x * axis.x;
+        result.data[4] = (1.0-c) * axis.x * axis.y + s * axis.z;
+        result.data[8] = (1.0-c) * axis.x * axis.z - s * axis.y;
+        result.data[12] = 0.0;
+
+        result.data[1] = (1.0-c) * axis.y * axis.x - s * axis.z;
+        result.data[5] = c + (1.0-c) * axis.y * axis.y;
+        result.data[9] = (1.0-c) * axis.y * axis.z + s * axis.x;
+        result.data[13] = 0.0;
+
+        result.data[2] = (1.0-c) * axis.z * axis.x + s * axis.y;
+        result.data[6] = (1.0-c) * axis.z * axis.y - s * axis.x;
+        result.data[10] = c + (1.0-c) * axis.z * axis.z;
+        result.data[14] = 0.0;
+
+        result.data[3] = 0.0;
+        result.data[7] = 0.0;
+        result.data[11] = 0.0;
+        result.data[15] = 1.0;
+
+        result
+    }
 }
 
 impl ops::Mul<Mat4> for f64 {
@@ -596,4 +629,16 @@ fn test_mat4_perspective() {
         0.000000, 0.000000, -1.000000, 0.000000
     ]);
     assert!(Mat4::epsilon_compare(&projection_matrix, &reference_projection_matrix, 1e-6f64));
+}
+
+#[test]
+fn test_mat4_rotate() {
+    let m = Mat4::rotate(&Mat4::identity(), Angle::Degrees(45.0), &Vec4::new(1.0, 2.0, 3.0, 0.0));
+    let reference_matrix = Mat4::new([
+        0.559228, -0.614429, 0.556544, 0.000000,
+        0.750052, 0.660944, -0.023980, 0.000000,
+        -0.353110, 0.430847, 0.830472, 0.000000,
+        0.000000, 0.000000, 0.000000, 1.000000
+    ]);
+    assert!(Mat4::epsilon_compare(&m, &reference_matrix, 1e-6f64));
 }
