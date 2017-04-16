@@ -24,9 +24,9 @@ impl Ray {
     }
 }
 
-struct RayTriangleIntersection {
-    model: Model, // TODO: use reference
-    face: mesh::Face, // TODO: use reference
+struct RayTriangleIntersection<'a> {
+    model: &'a Model,
+    face: &'a mesh::Face,
     hit_position: Vec4
 }
 
@@ -77,7 +77,7 @@ fn calc_view_matrix(camera: &Camera) -> Mat4 {
 
 /// Shoots a ray into the scene and returns the mesh triangle intersection with the model
 /// closest to the ray's origin.
-fn shoot_ray_into_scene(ray: &Ray, scene: &Scene) -> Option<RayTriangleIntersection> {
+fn shoot_ray_into_scene<'a>(ray: &Ray, scene: &'a Scene) -> Option<RayTriangleIntersection<'a>> {
     // TODO: handle multiple models
 
     for ref model in &scene.models {
@@ -92,7 +92,7 @@ fn shoot_ray_into_scene(ray: &Ray, scene: &Scene) -> Option<RayTriangleIntersect
 
 /// Determines if a given ray somewhere intersects a model's mesh.
 /// If so it returns information about the intersection.
-fn calculate_model_mesh_intersection(model: &Model, ray: &Ray) -> Option<RayTriangleIntersection> {
+fn calculate_model_mesh_intersection<'a>(model: &'a Model, ray: &Ray) -> Option<RayTriangleIntersection<'a>> {
     let mut result: Option<RayTriangleIntersection> = None;
     let mut distance: f64 = 0.0;
 
@@ -106,8 +106,8 @@ fn calculate_model_mesh_intersection(model: &Model, ray: &Ray) -> Option<RayTria
             if result.is_none() || t < distance {
                 let intersection = RayTriangleIntersection {
                     hit_position: ray.start.clone() + t * ray.direction.clone(),
-                    face: (*face).clone(),
-                    model: model.clone()
+                    face: &face,
+                    model: &model
                 };
                 result = Some(intersection);
                 distance = t;
