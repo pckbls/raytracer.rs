@@ -16,11 +16,9 @@ pub struct Raytrace {
 struct Ray {
     start: Vec4,
     end: Vec4,
-    pixmap_coords: (u32, u32)
 }
 
 struct RayTriangleIntersection {
-    ray: Ray,
     model: Model, // TODO: use reference
     face: mesh::Face, // TODO: use reference
     hit_position: Vec4,
@@ -48,42 +46,6 @@ impl Raytrace {
                       &self.scene.camera.up)
     }
 
-    fn generate_primary_rays(&self, view_matrix: Mat4, projection_matrix: Mat4) -> Vec<Ray> {
-        let mut rays: Vec<Ray> = Vec::new();
-
-        for x in 0..self.pixmap.width {
-            for y in 0..self.pixmap.height {
-                let ray = Ray {
-                    start: Vec4::unproject(Vec4::new(x as f64, y as f64, 0.0, 1.0),
-                                           &view_matrix, &projection_matrix,
-                                           self.pixmap.width, self.pixmap.height),
-                    end: Vec4::unproject(Vec4::new(x as f64, y as f64, 1.0, 1.0),
-                                         &view_matrix, &projection_matrix,
-                                         self.pixmap.width, self.pixmap.height),
-                    pixmap_coords: (x, y)
-                };
-
-                rays.push(ray);
-            }
-        }
-
-        rays
-    }
-
-    fn calculate_triangle_intersections(&self, rays: Vec<Ray>) -> Vec<RayTriangleIntersection> {
-        let mut intersections: Vec<RayTriangleIntersection> = Vec::new();
-
-        for ref ray in &rays {
-            for ref model in &self.scene.models {
-                if let Some(intersection) = self.calculate_model_mesh_intersection(&model, &ray) {
-                    intersections.push(intersection);
-                }
-            }
-        }
-
-        intersections
-    }
-
     fn calculate_model_mesh_intersection(&self, model: &Model, ray: &Ray) -> Option<RayTriangleIntersection> {
         let mm = model.calc_model_matrix();
 
@@ -104,7 +66,6 @@ impl Raytrace {
 
             if let Some(t) = triangle_intersection(v0, v1, v2, ray.start.clone(), ray_direction.clone()) {
                 let intersection = RayTriangleIntersection {
-                    ray: ray.clone(),
                     hit_position: ray.start.clone() + t * ray_direction.clone(),
                     face: (*face).clone(),
                     model: model.clone(),
@@ -117,49 +78,63 @@ impl Raytrace {
         None
     }
 
-    fn calculate_intersection_colors(&self, intersections: &mut Vec<RayTriangleIntersection>) {
-        for ref mut intersection in intersections.iter_mut() {
-            let normal_matrix = intersection.model.calc_normal_matrix();
+    fn calculate_intersection_colors(&self, intersection: &mut RayTriangleIntersection) {
+        let normal_matrix = intersection.model.calc_normal_matrix();
 
-            // TODO: Apply normal_matrix
-            // TODO: Remove invert() ?
-            let face_normal = intersection.face.normal.clone().invert().normalize();
+        // TODO: Apply normal_matrix
+        // TODO: Remove invert() ?
+        let face_normal = intersection.face.normal.clone().invert().normalize();
 
-            for ref light_source in self.scene.light_sources.iter() {
-                // Apply the ambient part
-                intersection.color = intersection.color.clone() + light_source.ambient_color.clone();
+        for ref light_source in self.scene.light_sources.iter() {
+            // Apply the ambient part
+            intersection.color = intersection.color.clone() + light_source.ambient_color.clone();
 
-                // Apply the diffuse lighting part
-                let mut intensity = Vec4::dot(&(intersection.hit_position.clone() - Vec4::new(3.0, 3.0, 3.0, 1.0)).normalize(), &face_normal);
-                if intensity < 0.0 {
-                    intensity = 0.0;
-                }
-                intersection.color = intersection.color.clone() + intensity * light_source.diffuse_color.clone();
-
-                // Apply the specular highlight
-                // TODO
+            // Apply the diffuse lighting part
+            let mut intensity = Vec4::dot(&(intersection.hit_position.clone() - Vec4::new(3.0, 3.0, 3.0, 1.0)).normalize(), &face_normal);
+            if intensity < 0.0 {
+                intensity = 0.0;
             }
+            intersection.color = intersection.color.clone() + intensity * light_source.diffuse_color.clone();
+
+            // Apply the specular highlight
+            // TODO
         }
     }
 
+    fn shoot_ray(&self, ray: &Ray) -> Option<RayTriangleIntersection> {
+        // TODO: only render pixel that is closest to camera
+
+        for ref model in &self.scene.models {
+            let result = self.calculate_model_mesh_intersection(&model, &ray);
+            if result.is_some() {
+                let mut intersection = result.unwrap();
+                self.calculate_intersection_colors(&mut intersection);
+                return Some(intersection);
+            }
+        }
+
+        None
+    }
+
     pub fn run(&mut self) {
-        println!("Calculate matrices");
-        let projection_matrix = self.calc_projection_matrix();
         let view_matrix = self.calc_view_matrix();
+        let projection_matrix = self.calc_projection_matrix();
 
-        println!("Generate primary rays");
-        let rays = self.generate_primary_rays(view_matrix, projection_matrix);
+        for x in 0..self.pixmap.width {
+            for y in 0..self.pixmap.height {
+                let ray = Ray {
+                    start: Vec4::unproject(Vec4::new(x as f64, y as f64, 0.0, 1.0),
+                                           &view_matrix, &projection_matrix,
+                                           self.pixmap.width, self.pixmap.height),
+                    end: Vec4::unproject(Vec4::new(x as f64, y as f64, 1.0, 1.0),
+                                         &view_matrix, &projection_matrix,
+                                         self.pixmap.width, self.pixmap.height)
+                };
 
-        println!("Calculate triangle intersections");
-        let mut intersections = self.calculate_triangle_intersections(rays);
-
-        println!("Calculate lighting");
-        self.calculate_intersection_colors(&mut intersections);
-
-        println!("Render intersections");
-        for intersection in intersections {
-            let (x, y) = intersection.ray.pixmap_coords;
-            self.pixmap.draw(x, y, intersection.color);
+                if let Some(intersection) = self.shoot_ray(&ray) {
+                    self.pixmap.draw(x, y, intersection.color);
+                }
+            }
         }
     }
 }
