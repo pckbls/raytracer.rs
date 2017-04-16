@@ -52,15 +52,14 @@ fn main() {
         camera: camera
     };
 
-    let pixmap = pixmap::Pixmap::new(128, 128);
-
-    let mut raytrace = raytrace::Raytrace::new(scene, pixmap);
+    let mut pixmap = pixmap::Pixmap::new(128, 128);
 
     let ts_before = time::Instant::now();
-    raytrace.run();
+    raytrace::render_scene(&scene, &mut pixmap);
     let ts_after = time::Instant::now();
+
     println!("Rendering time: {:?}", ts_after.duration_since(ts_before));
 
-    raytrace.pixmap.save_as_ppm("./output.ppm".to_string()).unwrap();
+    pixmap.save_as_ppm("./output.ppm".to_string()).unwrap();
 }
 

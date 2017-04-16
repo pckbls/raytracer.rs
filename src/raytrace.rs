@@ -5,6 +5,7 @@ use model::Model;
 use algebra::{ Angle, Vec4, Mat4 };
 use mesh;
 use lighting;
+use camera::Camera;
 
 #[derive(Clone)]
 struct Ray {
@@ -29,77 +30,64 @@ struct RayTriangleIntersection {
     hit_position: Vec4
 }
 
-pub struct Raytrace {
-    // TODO: Is it a good idea that the Raytrace struct consumes the Pixmap?
-    // TODO: Does this have to be public?
-    pub pixmap: Pixmap,
-    scene: Scene,
+/// Renders a scene onto a provided pixmap.
+pub fn render_scene(scene: &Scene, pixmap: &mut Pixmap) {
+    let view_matrix = calc_view_matrix(&scene.camera);
+    let projection_matrix = calc_projection_matrix(&scene.camera, &pixmap);
+
+    for x in 0..pixmap.width {
+        for y in 0..pixmap.height {
+            let start = Vec4::unproject(Vec4::new(x as f64, y as f64, 0.0, 1.0),
+                                        &view_matrix, &projection_matrix,
+                                        pixmap.width, pixmap.height);
+            let end = Vec4::unproject(Vec4::new(x as f64, y as f64, 1.0, 1.0),
+                                      &view_matrix, &projection_matrix,
+                                      pixmap.width, pixmap.height);
+
+            let ray = Ray::new(start, end);
+
+            if let Some(intersection) = shoot_ray_into_scene(&ray, &scene) {
+                let mut color = Color { r: 0, g: 0, b: 0 };
+
+                for ref light_source in scene.light_sources.iter() {
+                    let color_part = lighting::apply_face_lighting(&intersection.model, &intersection.face,
+                                                                   &intersection.hit_position, &light_source,
+                                                                   lighting::Shading::Flat);
+                    color = color.clone() + color_part;
+                }
+
+                pixmap.draw(x, y, color);
+            }
+        }
+    }
 }
 
-impl Raytrace {
-    pub fn new(scene: Scene, pixmap: Pixmap) -> Self {
-        Raytrace {
-            scene: scene,
-            pixmap: pixmap
+fn calc_projection_matrix(camera: &Camera, pixmap: &Pixmap) -> Mat4 {
+    Mat4::perspective(Angle::Degrees(45.0),
+                      (pixmap.width / pixmap.height) as f64,
+                      camera.position.z / 10.0,
+                      camera.position.z * 10.0)
+}
+
+fn calc_view_matrix(camera: &Camera) -> Mat4 {
+    Mat4::look_at(&camera.position,
+                  &camera.look_at,
+                  &camera.up)
+}
+
+/// Shoots a ray into the scene and returns the mesh triangle intersection with the model
+/// closest to the ray's origin.
+fn shoot_ray_into_scene(ray: &Ray, scene: &Scene) -> Option<RayTriangleIntersection> {
+    // TODO: handle multiple models
+
+    for ref model in &scene.models {
+        let result = calculate_model_mesh_intersection(&model, &ray);
+        if result.is_some() {
+            return result;
         }
     }
 
-    pub fn run(&mut self) {
-        let view_matrix = self.calc_view_matrix();
-        let projection_matrix = self.calc_projection_matrix();
-
-        for x in 0..self.pixmap.width {
-            for y in 0..self.pixmap.height {
-                let start = Vec4::unproject(Vec4::new(x as f64, y as f64, 0.0, 1.0),
-                                            &view_matrix, &projection_matrix,
-                                            self.pixmap.width, self.pixmap.height);
-                let end = Vec4::unproject(Vec4::new(x as f64, y as f64, 1.0, 1.0),
-                                          &view_matrix, &projection_matrix,
-                                          self.pixmap.width, self.pixmap.height);
-
-                let ray = Ray::new(start, end);
-
-                if let Some(intersection) = self.shoot_ray(&ray) {
-                    let mut color = Color { r: 0, g: 0, b: 0 };
-
-                    for ref light_source in self.scene.light_sources.iter() {
-                        let color_part = lighting::apply_face_lighting(&intersection.model, &intersection.face,
-                                                                       &intersection.hit_position, &light_source,
-                                                                       lighting::Shading::Flat);
-                        color = color.clone() + color_part;
-                    }
-
-                    self.pixmap.draw(x, y, color);
-                }
-            }
-        }
-    }
-
-    fn calc_projection_matrix(&self) -> Mat4 {
-        Mat4::perspective(Angle::Degrees(45.0),
-                          (self.pixmap.width / self.pixmap.height) as f64,
-                          self.scene.camera.position.z / 10.0,
-                          self.scene.camera.position.z * 10.0)
-    }
-
-    fn calc_view_matrix(&self) -> Mat4 {
-        Mat4::look_at(&self.scene.camera.position,
-                      &self.scene.camera.look_at,
-                      &self.scene.camera.up)
-    }
-
-    fn shoot_ray(&self, ray: &Ray) -> Option<RayTriangleIntersection> {
-        // TODO: only render pixel that is closest to camera
-
-        for ref model in &self.scene.models {
-            let result = calculate_model_mesh_intersection(&model, &ray);
-            if result.is_some() {
-                return result;
-            }
-        }
-
-        None
-    }
+    None
 }
 
 /// Determines if a given ray somewhere intersects a model's mesh.
@@ -221,12 +209,12 @@ fn test_raytrace() {
         camera: camera
     };
 
-    let pixmap = Pixmap::new(32, 32);
+    let mut pixmap = Pixmap::new(32, 32);
 
-    let mut raytrace = Raytrace::new(scene, pixmap);
-    raytrace.run();
-    raytrace.pixmap.save_as_ppm("./testdata/output/raytrace.ppm".to_string()).unwrap();
+    render_scene(&scene, &mut pixmap);
+
+    pixmap.save_as_ppm("./testdata/output/raytrace.ppm".to_string()).unwrap();
 
     let reference_pixmap = Pixmap::try_load_from_ppm("./testdata/raytrace.ppm".to_string()).unwrap();
-    assert_eq!(raytrace.pixmap, reference_pixmap);
+    assert_eq!(pixmap, reference_pixmap);
 }
