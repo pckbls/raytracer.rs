@@ -27,7 +27,8 @@ impl Ray {
 struct RayTriangleIntersection<'a> {
     model: &'a Model,
     face: &'a mesh::Face,
-    hit_position: Vec4
+    hit_position: Vec4,
+    t: f64
 }
 
 /// Renders a scene onto a provided pixmap.
@@ -78,16 +79,19 @@ fn calc_view_matrix(camera: &Camera) -> Mat4 {
 /// Shoots a ray into the scene and returns the mesh triangle intersection with the model
 /// closest to the ray's origin.
 fn shoot_ray_into_scene<'a>(ray: &Ray, scene: &'a Scene) -> Option<RayTriangleIntersection<'a>> {
-    // TODO: handle multiple models
+    let mut result: Option<RayTriangleIntersection> = None;
+    let mut distance: f64 = 0.0; // TODO: We could simply use the t field inside result
 
     for ref model in &scene.models {
-        let result = calculate_model_mesh_intersection(&model, &ray);
-        if result.is_some() {
-            return result;
+        if let Some(intersection) = calculate_model_mesh_intersection(&model, &ray) {
+            if result.is_none() || intersection.t < distance {
+                distance = intersection.t;
+                result = Some(intersection);
+            }
         }
     }
 
-    None
+    result
 }
 
 /// Determines if a given ray somewhere intersects a model's mesh.
@@ -105,6 +109,7 @@ fn calculate_model_mesh_intersection<'a>(model: &'a Model, ray: &Ray) -> Option<
         if let Some(t) = triangle_intersection(model.get_face_world_coords(&face), ray.start.clone(), ray.direction.clone()) {
             if result.is_none() || t < distance {
                 let intersection = RayTriangleIntersection {
+                    t: t,
                     hit_position: ray.start.clone() + t * ray.direction.clone(),
                     face: &face,
                     model: &model
@@ -121,6 +126,9 @@ fn calculate_model_mesh_intersection<'a>(model: &'a Model, ray: &Ray) -> Option<
 /// Implementation of the Möller-Trumbore intersection algorithm
 /// Pseude code has been taken from Wikipedia and translated into Rust:
 /// https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+///
+/// Maybe the GLM implementation is faster?
+/// https://glm.g-truc.net/0.9.0/api/a00162.html#a0922c431baec628c6955011c79d39cd9
 fn triangle_intersection((v1, v2, v3): (Vec4, Vec4, Vec4), o: Vec4, d: Vec4) -> Option<f64> {
     // TODO: Use global epsilon?
     let epsilon: f64 = 0.000001;
@@ -179,18 +187,9 @@ fn test_raytrace() {
     use lighting::LightSource;
     use mesh;
 
-    let mesh = mesh::Mesh::try_load_from_off("./meshes/teapot.off", mesh::PolygonWinding::Clockwise).unwrap();
-
-    let model = Model {
-        mesh: mesh,
-        position: Vec4 {
-            x: 0.0,
-            y: -1.0,
-            z: 0.0,
-            w: 1.0
-        },
-        orientation: Mat4::identity()
-    };
+    let model = Model::new(mesh::Mesh::try_load_from_off("meshes/teapot.off", mesh::PolygonWinding::Clockwise).unwrap(),
+                           Vec4::new(0.0, -1.0, 0.0, 1.0),
+                           Mat4::identity());
 
     let camera = Camera {
         position: Vec4 { x: 0.0, y: 0.0, z: 10.0, w: 1.0 },

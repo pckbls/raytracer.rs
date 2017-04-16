@@ -14,18 +14,28 @@ use algebra::Vec4;
 fn main() {
     let mesh = mesh::Mesh::try_load_from_off("./meshes/teapot.off", mesh::PolygonWinding::Clockwise).unwrap();
 
-    let model = model::Model {
-        mesh: mesh,
-        position: Vec4 {
-            x: 0.0,
-            y: -1.0,
-            z: 0.0,
-            w: 1.0
-        },
-        orientation: algebra::Mat4::rotate(&algebra::Mat4::identity(),
-                                           algebra::Angle::Degrees(40.0),
-                                           &algebra::Vec4::new(0.0, 1.0, 0.0, 0.0))
-    };
+    let model = model::Model::new(mesh.clone(),
+                                  Vec4::new(0.0, -1.0, 0.0, 1.0),
+                                  algebra::Mat4::rotate(&algebra::Mat4::identity(),
+                                                        algebra::Angle::Degrees(40.0),
+                                                        &algebra::Vec4::new(0.0, 1.0, 0.0, 0.0)),
+                                  Vec4::new(1.0, 1.0, 1.0, 1.0));
+
+    let mesh_plane4x4 = mesh::Mesh::try_load_from_off("./meshes/plane4x4.off", mesh::PolygonWinding::Clockwise).unwrap();
+
+    let floor = model::Model::new(mesh_plane4x4.clone(),
+                                  Vec4::new(0.0, -1.0, 0.0, 1.0),
+                                  algebra::Mat4::rotate(&algebra::Mat4::identity(),
+                                                        algebra::Angle::Degrees(90.0),
+                                                        &algebra::Vec4::new(1.0, 0.0, 0.0, 0.0)),
+                                  Vec4::new(10.0, 10.0, 10.0, 1.0));
+
+    let backw = model::Model::new(mesh_plane4x4.clone(),
+                                  Vec4::new(0.0, 0.0, -5.0, 1.0),
+                                  algebra::Mat4::rotate(&algebra::Mat4::identity(),
+                                                        algebra::Angle::Degrees(0.0),
+                                                        &algebra::Vec4::new(1.0, 0.0, 0.0, 0.0)),
+                                  Vec4::new(10.0, 10.0, 10.0, 1.0));
 
     let camera = camera::Camera {
         position: Vec4 { x: 0.0, y: 0.0, z: 10.0, w: 1.0 },
@@ -34,7 +44,11 @@ fn main() {
     };
 
     let scene = scene::Scene {
-        models: vec![model],
+        models: vec![
+            model,
+            backw,
+            floor
+        ],
         light_sources: vec![
             lighting::LightSource {
                 position: Vec4::new(0.0, 0.0, 0.0, 1.0),
@@ -55,7 +69,7 @@ fn main() {
         camera: camera
     };
 
-    let mut pixmap = pixmap::Pixmap::new(128, 128);
+    let mut pixmap = pixmap::Pixmap::new(512, 512);
 
     let ts_before = time::Instant::now();
     raytrace::render_scene(&scene, &mut pixmap);

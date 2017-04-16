@@ -6,16 +6,37 @@ use algebra::*;
 pub struct Model {
     pub mesh: Mesh,
     pub position: Vec4,
-    pub orientation: Mat4
+    pub orientation: Mat4, // TODO: use dedicated data type for this
+    pub scale: Vec4,
+
+    model_matrix: Mat4,
+    normal_matrix: Mat4
 }
 
 impl Model {
-    pub fn calc_model_matrix(&self) -> Mat4 {
-        Mat4::translate(&self.position) * self.orientation.clone()
+    pub fn new(mesh: Mesh, position: Vec4, orientation: Mat4, scale: Vec4) -> Self {
+        let model_matrix = Mat4::translate(&position) * orientation.clone() * Mat4::scale(&scale);
+        let normal_matrix = model_matrix.clone().inverse().transpose();
+
+        Self {
+            mesh: mesh,
+            position: position.clone(),
+            orientation: orientation,
+            scale: scale,
+
+            model_matrix: model_matrix,
+            normal_matrix: normal_matrix
+        }
     }
 
+    // TODO: rename this bitch
+    pub fn calc_model_matrix(&self) -> Mat4 {
+        self.model_matrix.clone()
+    }
+
+    // TODO: rename this bitch
     pub fn calc_normal_matrix(&self) -> Mat4 {
-        self.calc_model_matrix().inverse().transpose()
+        self.normal_matrix.clone()
     }
 
     pub fn get_face_world_coords(&self, face: &Face) -> (Vec4, Vec4, Vec4) {
@@ -40,11 +61,10 @@ fn test_calc_model_matrix() {
 fn test_calc_normal_matrix() {
     use mesh::PolygonWinding;
 
-    let model = Model {
-        position: Vec4::new(0.0, -1.0, 0.0, 1.0),
-        mesh: Mesh::try_load_from_off("meshes/teapot.off", PolygonWinding::Clockwise).unwrap(),
-        orientation: Mat4::identity()
-    };
+    let model = Model::new(Mesh::try_load_from_off("meshes/teapot.off", PolygonWinding::Clockwise).unwrap(),
+                           Vec4::new(0.0, -1.0, 0.0, 1.0),
+                           Mat4::identity());
+
     let reference_matrix = Mat4::new([
         1.0, 0.0, 0.0, 0.0,
         0.0, 1.0, 0.0, 0.0,

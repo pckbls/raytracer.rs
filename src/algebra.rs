@@ -377,6 +377,15 @@ impl Mat4 {
 
         result
     }
+
+    pub fn scale(v: &Vec4) -> Self {
+        let mut result = Mat4::identity();
+        result.data[0] = v.x;
+        result.data[5] = v.y;
+        result.data[10] = v.z;
+        // TODO: what do we do with w?
+        result
+    }
 }
 
 impl ops::Mul<Mat4> for f64 {

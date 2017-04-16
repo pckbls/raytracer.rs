@@ -26,8 +26,11 @@ pub fn apply_face_lighting(model: &Model, face: &Face, position: &Vec4, light_so
     // Apply the ambient part
     color = color.clone() + light_source.ambient_color.clone();
 
+    // TODO
+    let foo = model.calc_normal_matrix() * face.normal.clone().invert();
+
     // Apply the diffuse lighting part
-    let mut intensity = Vec4::dot(&(position.clone() - light_source.position.clone()).normalize(), &face.normal.clone().invert());
+    let mut intensity = Vec4::dot(&(position.clone() - light_source.position.clone()).normalize(), &foo);
     if intensity < 0.0 {
         intensity = 0.0;
     }
