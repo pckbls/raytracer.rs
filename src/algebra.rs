@@ -348,8 +348,8 @@ impl Mat4 {
     /// TODO
     pub fn rotate(m: &Mat4, angle: Angle, v: &Vec4) -> Self {
         let (c, s): (f64, f64) = match angle {
-            Angle::Degrees(a) => (a.cos(), a.sin()),
-            _ => panic!("Not implemented.")
+            Angle::Radians(a) => (a.cos(), a.sin()),
+            Angle::Degrees(a) => ((a/180.0*PI).cos(), (a/180.0*PI).sin())
         };
         let axis = v.clone().normalize();
 
@@ -633,7 +633,7 @@ fn test_mat4_perspective() {
 
 #[test]
 fn test_mat4_rotate() {
-    let m = Mat4::rotate(&Mat4::identity(), Angle::Degrees(45.0), &Vec4::new(1.0, 2.0, 3.0, 0.0));
+    let m = Mat4::rotate(&Mat4::identity(), Angle::Radians(45.0), &Vec4::new(1.0, 2.0, 3.0, 0.0));
     let reference_matrix = Mat4::new([
         0.559228, -0.614429, 0.556544, 0.000000,
         0.750052, 0.660944, -0.023980, 0.000000,
