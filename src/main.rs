@@ -21,7 +21,10 @@ fn main() {
             y: -1.0,
             z: 0.0,
             w: 1.0
-        }
+        },
+        orientation: algebra::Mat4::rotate(&algebra::Mat4::identity(),
+                                           algebra::Angle::Degrees(40.0),
+                                           &algebra::Vec4::new(0.0, 1.0, 0.0, 0.0))
     };
 
     let camera = camera::Camera {

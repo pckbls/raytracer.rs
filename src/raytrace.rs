@@ -188,7 +188,8 @@ fn test_raytrace() {
             y: -1.0,
             z: 0.0,
             w: 1.0
-        }
+        },
+        orientation: Mat4::identity()
     };
 
     let camera = Camera {

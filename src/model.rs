@@ -6,11 +6,12 @@ use algebra::*;
 pub struct Model {
     pub mesh: Mesh,
     pub position: Vec4,
+    pub orientation: Mat4
 }
 
 impl Model {
     pub fn calc_model_matrix(&self) -> Mat4 {
-        Mat4::translate(&self.position)
+        Mat4::translate(&self.position) * self.orientation.clone()
     }
 
     pub fn calc_normal_matrix(&self) -> Mat4 {
@@ -41,7 +42,8 @@ fn test_calc_normal_matrix() {
 
     let model = Model {
         position: Vec4::new(0.0, -1.0, 0.0, 1.0),
-        mesh: Mesh::try_load_from_off("meshes/teapot.off", PolygonWinding::Clockwise).unwrap()
+        mesh: Mesh::try_load_from_off("meshes/teapot.off", PolygonWinding::Clockwise).unwrap(),
+        orientation: Mat4::identity()
     };
     let reference_matrix = Mat4::new([
         1.0, 0.0, 0.0, 0.0,
