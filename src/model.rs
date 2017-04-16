@@ -1,4 +1,4 @@
-use mesh::Mesh;
+use mesh::{ Mesh, Face };
 use algebra::*;
 
 #[allow(dead_code)]
@@ -15,6 +15,17 @@ impl Model {
 
     pub fn calc_normal_matrix(&self) -> Mat4 {
         self.calc_model_matrix().inverse().transpose()
+    }
+
+    pub fn get_face_world_coords(&self, face: &Face) -> (Vec4, Vec4, Vec4) {
+        let a = self.calc_model_matrix() * self.mesh.vertices[face.a].position.clone();
+        let b = self.calc_model_matrix() * self.mesh.vertices[face.b].position.clone();
+        let c = self.calc_model_matrix() * self.mesh.vertices[face.c].position.clone();
+        (a, b, c)
+    }
+
+    pub fn get_face_world_normal(&self, face: &Face) -> Vec4 {
+        self.calc_normal_matrix() * face.normal.clone()
     }
 }
 

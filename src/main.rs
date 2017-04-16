@@ -39,9 +39,14 @@ fn main() {
                 diffuse_color: color::Color { r: 0, g: 0, b: 0 },
             },
             lighting::LightSource {
-                position: Vec4::new(0.0, 3.0, 3.0, 1.0),
+                position: Vec4::new(3.0, 3.0, 3.0, 1.0),
                 ambient_color: color::Color { r: 0, g: 0, b: 0 },
                 diffuse_color: color::Color { r: 0, g: 100, b: 200 },
+            },
+            lighting::LightSource {
+                position: Vec4::new(-3.0, -3.0, -3.0, 1.0),
+                ambient_color: color::Color { r: 0, g: 0, b: 0 },
+                diffuse_color: color::Color { r: 150, g: 0, b: 0 },
             }
         ],
         camera: camera
