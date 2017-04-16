@@ -33,4 +33,7 @@ int main(int argc, char *argv[]) {
     std::cout << "translation: " << glm::to_string(translation) << std::endl;
 
     std::cout << "dot reference " << glm::dot(glm::vec3(1.0, 2.0, 3.0), glm::vec3(4.0, 5.0, 6.0)) << std::endl;
+
+    glm::mat4 rotation = glm::rotate(glm::mat4(1), 45.0f, glm::vec3(1.0f, 2.0f, 3.0f));
+    std::cout << "rotation matrix" << glm::to_string(rotation) << std::endl;
 }
