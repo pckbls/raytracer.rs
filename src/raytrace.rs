@@ -6,12 +6,6 @@ use algebra::{ Angle, Vec4, Mat4 };
 use mesh;
 use lighting;
 
-pub struct Raytrace {
-    scene: Scene,
-    // TODO: is it a good idea that the Raytrace struct consumes the Pixmap?
-    pub pixmap: Pixmap
-}
-
 #[derive(Clone)]
 struct Ray {
     start: Vec4,
@@ -32,8 +26,14 @@ impl Ray {
 struct RayTriangleIntersection {
     model: Model, // TODO: use reference
     face: mesh::Face, // TODO: use reference
-    hit_position: Vec4,
-    color: Color
+    hit_position: Vec4
+}
+
+pub struct Raytrace {
+    // TODO: Is it a good idea that the Raytrace struct consumes the Pixmap?
+    // TODO: Does this have to be public?
+    pub pixmap: Pixmap,
+    scene: Scene,
 }
 
 impl Raytrace {
@@ -42,65 +42,6 @@ impl Raytrace {
             scene: scene,
             pixmap: pixmap
         }
-    }
-
-    fn calc_projection_matrix(&self) -> Mat4 {
-        Mat4::perspective(Angle::Degrees(45.0),
-                          (self.pixmap.width / self.pixmap.height) as f64,
-                          self.scene.camera.position.z / 10.0,
-                          self.scene.camera.position.z * 10.0)
-    }
-
-    fn calc_view_matrix(&self) -> Mat4 {
-        Mat4::look_at(&self.scene.camera.position,
-                      &self.scene.camera.look_at,
-                      &self.scene.camera.up)
-    }
-
-    fn calculate_model_mesh_intersection(&self, model: &Model, ray: &Ray) -> Option<RayTriangleIntersection> {
-        let mm = model.calc_model_matrix();
-
-        let mut result: Option<RayTriangleIntersection> = None;
-        let mut distance: f64 = 0.0;
-
-        for ref face in &model.mesh.faces {
-            // Back-face culling
-            if face.normal.z < 0.0 {
-                continue;
-            }
-
-            let v0 = mm.clone() * model.mesh.vertices[face.a].position.clone();
-            let v1 = mm.clone() * model.mesh.vertices[face.b].position.clone();
-            let v2 = mm.clone() * model.mesh.vertices[face.c].position.clone();
-
-            if let Some(t) = triangle_intersection(v0, v1, v2, ray.start.clone(), ray.direction.clone()) {
-                if result.is_none() || t < distance {
-                    let intersection = RayTriangleIntersection {
-                        hit_position: ray.start.clone() + t * ray.direction.clone(),
-                        face: (*face).clone(),
-                        model: model.clone(),
-                        color: Color { r: 0, g: 0, b: 0 }
-                    };
-                    result = Some(intersection);
-                    distance = t;
-                }
-            }
-        }
-
-        result
-    }
-
-    fn shoot_ray(&self, ray: &Ray) -> Option<RayTriangleIntersection> {
-        // TODO: only render pixel that is closest to camera
-
-        for ref model in &self.scene.models {
-            let result = self.calculate_model_mesh_intersection(&model, &ray);
-            if result.is_some() {
-                return result;
-            }
-        }
-
-        None
     }
 
     pub fn run(&mut self) {
@@ -133,12 +74,66 @@ impl Raytrace {
             }
         }
     }
+
+    fn calc_projection_matrix(&self) -> Mat4 {
+        Mat4::perspective(Angle::Degrees(45.0),
+                          (self.pixmap.width / self.pixmap.height) as f64,
+                          self.scene.camera.position.z / 10.0,
+                          self.scene.camera.position.z * 10.0)
+    }
+
+    fn calc_view_matrix(&self) -> Mat4 {
+        Mat4::look_at(&self.scene.camera.position,
+                      &self.scene.camera.look_at,
+                      &self.scene.camera.up)
+    }
+
+    fn shoot_ray(&self, ray: &Ray) -> Option<RayTriangleIntersection> {
+        // TODO: only render pixel that is closest to camera
+
+        for ref model in &self.scene.models {
+            let result = calculate_model_mesh_intersection(&model, &ray);
+            if result.is_some() {
+                return result;
+            }
+        }
+
+        None
+    }
+}
+
+/// Determines if a given ray somewhere intersects a model's mesh.
+/// If so it returns information about the intersection.
+fn calculate_model_mesh_intersection(model: &Model, ray: &Ray) -> Option<RayTriangleIntersection> {
+    let mut result: Option<RayTriangleIntersection> = None;
+    let mut distance: f64 = 0.0;
+
+    for ref face in &model.mesh.faces {
+        // Perform back-face culling.
+        if face.normal.z < 0.0 {
+            continue;
+        }
+
+        if let Some(t) = triangle_intersection(model.get_face_world_coords(&face), ray.start.clone(), ray.direction.clone()) {
+            if result.is_none() || t < distance {
+                let intersection = RayTriangleIntersection {
+                    hit_position: ray.start.clone() + t * ray.direction.clone(),
+                    face: (*face).clone(),
+                    model: model.clone()
+                };
+                result = Some(intersection);
+                distance = t;
+            }
+        }
+    }
+
+    result
 }
 
 /// Implementation of the Möller-Trumbore intersection algorithm
 /// Pseude code has been taken from Wikipedia and translated into Rust:
 /// https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
-fn triangle_intersection(v1: Vec4, v2: Vec4, v3: Vec4, o: Vec4, d: Vec4) -> Option<f64> {
+fn triangle_intersection((v1, v2, v3): (Vec4, Vec4, Vec4), o: Vec4, d: Vec4) -> Option<f64> {
     // TODO: Use global epsilon?
     let epsilon: f64 = 0.000001;
 
