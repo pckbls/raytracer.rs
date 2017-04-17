@@ -189,7 +189,8 @@ fn test_raytrace() {
 
     let model = Model::new(mesh::Mesh::try_load_from_off("meshes/teapot.off", mesh::PolygonWinding::Clockwise).unwrap(),
                            Vec4::new(0.0, -1.0, 0.0, 1.0),
-                           Mat4::identity());
+                           Mat4::identity(),
+                           Vec4::new(1.0, 1.0, 1.0, 1.0));
 
     let camera = Camera {
         position: Vec4 { x: 0.0, y: 0.0, z: 10.0, w: 1.0 },
@@ -200,7 +201,8 @@ fn test_raytrace() {
     let ambient_light_source = LightSource {
         position: Vec4::new(0.0, 0.0, 0.0, 1.0),
         ambient_color: Color { r: 255, g: 0, b: 0 },
-        diffuse_color: Color { r: 0, g: 0, b: 0 }
+        diffuse_color: Color { r: 0, g: 0, b: 0 },
+        specular_color: Color { r: 0, g: 0, b: 0 }
     };
 
     let scene = Scene {

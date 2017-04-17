@@ -41,7 +41,9 @@ pub fn apply_face_lighting(model: &Model, face: &Face, position: &Vec4, light_so
 
     // Calculate face normal
     let face_normal = match shading_type {
-        Shading::Flat => model.calc_normal_matrix() * face.normal.clone().invert(),
+        // TODO: The additional normalize is required because the elements of our normal matrix
+        // have not been divided by the matrix's determinant.
+        Shading::Flat => (model.calc_normal_matrix() * face.normal.clone().invert()).normalize(),
         _ => panic!("Shading type has not been implemented yet.")
     };
 

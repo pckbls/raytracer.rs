@@ -24,6 +24,36 @@ impl Model {
         // See: http://stackoverflow.com/questions/27600045/the-correct-way-to-calculate-normal-matrix
         let normal_matrix = model_matrix.clone().inverse().transpose();
 
+        let r0 = Vec4 {
+            x: model_matrix.data[0],
+            y: model_matrix.data[1],
+            z: model_matrix.data[2],
+            w: 0.0
+        };
+        let r1 = Vec4 {
+            x: model_matrix.data[4],
+            y: model_matrix.data[5],
+            z: model_matrix.data[6],
+            w: 0.0
+        };
+        let r2 = Vec4 {
+            x: model_matrix.data[8],
+            y: model_matrix.data[9],
+            z: model_matrix.data[10],
+            w: 0.0
+        };
+
+        let t0 = Vec4::cross(&r1, &r2);
+        let t1 = Vec4::cross(&r2, &r0);
+        let t2 = Vec4::cross(&r0, &r1);
+
+        let normal_matrix = Mat4::new([
+            t0.x, t0.y, t0.z, 0.0,
+            t1.x, t1.y, t1.z, 0.0,
+            t2.x, t2.y, t2.z, 0.0,
+            0.0, 0.0, 0.0, 0.0
+        ]);
+
         Self {
             mesh: mesh,
             position: position.clone(),
@@ -69,7 +99,10 @@ fn test_calc_normal_matrix() {
 
     let model = Model::new(Mesh::try_load_from_off("meshes/teapot.off", PolygonWinding::Clockwise).unwrap(),
                            Vec4::new(0.0, -1.0, 0.0, 1.0),
-                           Mat4::identity());
+                           Mat4::identity(),
+                           Vec4::new(1.0, 1.0, 1.0, 0.0));
+
+    println!("Debug {:?}", model.calc_normal_matrix());
 
     let reference_matrix = Mat4::new([
         1.0, 0.0, 0.0, 0.0,
