@@ -22,37 +22,12 @@ impl Model {
 
         // TODO: This is wrong, we have to apply inverse/transpose on the top-left 3x3 sub matrix
         // See: http://stackoverflow.com/questions/27600045/the-correct-way-to-calculate-normal-matrix
-        let normal_matrix = model_matrix.clone().inverse().transpose();
-
-        let r0 = Vec4 {
-            x: model_matrix.data[0],
-            y: model_matrix.data[1],
-            z: model_matrix.data[2],
-            w: 0.0
-        };
-        let r1 = Vec4 {
-            x: model_matrix.data[4],
-            y: model_matrix.data[5],
-            z: model_matrix.data[6],
-            w: 0.0
-        };
-        let r2 = Vec4 {
-            x: model_matrix.data[8],
-            y: model_matrix.data[9],
-            z: model_matrix.data[10],
-            w: 0.0
-        };
-
-        let t0 = Vec4::cross(&r1, &r2);
-        let t1 = Vec4::cross(&r2, &r0);
-        let t2 = Vec4::cross(&r0, &r1);
-
-        let normal_matrix = Mat4::new([
-            t0.x, t0.y, t0.z, 0.0,
-            t1.x, t1.y, t1.z, 0.0,
-            t2.x, t2.y, t2.z, 0.0,
-            0.0, 0.0, 0.0, 0.0
-        ]);
+        // TODO: Maybe this is correct? And we just need to describe why we've set the 4th row to 0.
+        let mut normal_matrix = model_matrix.clone().inverse().transpose();
+        normal_matrix.data[12] = 0.0;
+        normal_matrix.data[13] = 0.0;
+        normal_matrix.data[14] = 0.0;
+        normal_matrix.data[15] = 0.0;
 
         Self {
             mesh: mesh,

@@ -166,6 +166,7 @@ impl Mesh {
             let v = v2.clone() - v0.clone();
 
             let normal = Vec4::cross(&u, &v).normalize();
+            face.normal = normal.clone();
 
             vertices[face.a].normal = vertices[face.a].normal.clone() + normal.clone();
             vertices[face.b].normal = vertices[face.b].normal.clone() + normal.clone();
@@ -176,10 +177,11 @@ impl Mesh {
             vertex.normal = vertex.normal.clone().normalize();
         }
 
-        for ref mut face in faces.iter_mut() {
+        // TODO: Wait a minute, this section is complete bullshit, isn't it?
+        /*for ref mut face in faces.iter_mut() {
             let normal = vertices[face.a].normal.clone() + vertices[face.b].normal.clone() + vertices[face.c].normal.clone();
             face.normal = normal.normalize(); // TODO: correct?
-        }
+        }*/
 
         Mesh {
             vertices: vertices,

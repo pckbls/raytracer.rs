@@ -12,14 +12,14 @@ use std::time;
 use algebra::Vec4;
 
 fn main() {
-    let mesh = mesh::Mesh::try_load_from_off("./meshes/teapot.off", mesh::PolygonWinding::Clockwise).unwrap();
+    let mesh = mesh::Mesh::try_load_from_off("./meshes/cowboyhut.off", mesh::PolygonWinding::Clockwise).unwrap();
 
     let model = model::Model::new(mesh.clone(),
-                                  Vec4::new(0.0, -1.0, 0.0, 1.0),
+                                  Vec4::new(-3.0, -1.0, 0.0, 1.0),
                                   algebra::Mat4::rotate(&algebra::Mat4::identity(),
                                                         algebra::Angle::Degrees(40.0),
                                                         &algebra::Vec4::new(0.0, 1.0, 0.0, 0.0)),
-                                  Vec4::new(1.0, 1.0, 1.0, 1.0));
+                                  Vec4::new(5.0, 5.0, 5.0, 1.0));
 
     let mesh_plane4x4 = mesh::Mesh::try_load_from_off("./meshes/plane4x4.off", mesh::PolygonWinding::Clockwise).unwrap();
 
@@ -57,13 +57,13 @@ fn main() {
                 specular_color: color::Color { r: 0, g: 0, b: 0 },
             },
             lighting::LightSource {
-                position: Vec4::new(3.0, 3.0, 3.0, 1.0),
+                position: Vec4::new(3.0, -3.0, 10.0, 1.0),
                 ambient_color: color::Color { r: 0, g: 0, b: 0 },
                 diffuse_color: color::Color { r: 0, g: 100, b: 200 },
                 specular_color: color::Color { r: 255, g: 255, b: 255 },
             },
             lighting::LightSource {
-                position: Vec4::new(-3.0, -3.0, -3.0, 1.0),
+                position: Vec4::new(-3.0, 3.0, 3.0, 1.0),
                 ambient_color: color::Color { r: 0, g: 0, b: 0 },
                 diffuse_color: color::Color { r: 200, g: 0, b: 0 },
                 specular_color: color::Color { r: 255, g: 255, b: 255 },
@@ -72,7 +72,7 @@ fn main() {
         camera: camera
     };
 
-    let mut pixmap = pixmap::Pixmap::new(512, 512);
+    let mut pixmap = pixmap::Pixmap::new(1024, 1024);
 
     let ts_before = time::Instant::now();
     raytrace::render_scene(&scene, &mut pixmap);

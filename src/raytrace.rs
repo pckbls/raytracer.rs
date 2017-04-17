@@ -63,6 +63,40 @@ pub fn render_scene(scene: &Scene, pixmap: &mut Pixmap) {
     }
 }
 
+/// Renders a scene in debug mode:
+/// * TODO
+pub fn render_scene_debug(scene: &Scene, pixmap: &mut Pixmap) {
+    let view_matrix = calc_view_matrix(&scene.camera);
+    let projection_matrix = calc_projection_matrix(&scene.camera, &pixmap);
+
+    for x in 0..pixmap.width {
+        for y in 0..pixmap.height {
+            let start = Vec4::unproject(Vec4::new(x as f64, y as f64, 0.0, 1.0),
+                                        &view_matrix, &projection_matrix,
+                                        pixmap.width, pixmap.height);
+            let end = Vec4::unproject(Vec4::new(x as f64, y as f64, 1.0, 1.0),
+                                      &view_matrix, &projection_matrix,
+                                      pixmap.width, pixmap.height);
+
+            let ray = Ray::new(start, end);
+
+            if let Some(intersection) = shoot_ray_into_scene(&ray, &scene) {
+                let mut face_normal = intersection.model.get_face_world_normal(&intersection.face);
+                face_normal.w = 0.0; // TODO: URGH!
+                face_normal = face_normal.normalize();
+
+                let mut color = Color {
+                    r: ((face_normal.x * 0.5 + 0.5) * 255.0) as u8,
+                    g: ((face_normal.y * 0.5 + 0.5) * 255.0) as u8,
+                    b: ((face_normal.z * 0.5 + 0.5) * 255.0) as u8,
+                };
+
+                pixmap.draw(x, y, color);
+            }
+        }
+    }
+}
+
 fn calc_projection_matrix(camera: &Camera, pixmap: &Pixmap) -> Mat4 {
     Mat4::perspective(Angle::Degrees(45.0),
                       (pixmap.width / pixmap.height) as f64,
@@ -102,9 +136,10 @@ fn calculate_model_mesh_intersection<'a>(model: &'a Model, ray: &Ray) -> Option<
 
     for ref face in &model.mesh.faces {
         // Perform back-face culling.
-        if face.normal.z < 0.0 {
-            continue;
-        }
+        // TODO: This obviously only works in camera coordinate space...
+        //if face.normal.z < 0.0 {
+        //    continue;
+        //}
 
         if let Some(t) = triangle_intersection(model.get_face_world_coords(&face), ray.start.clone(), ray.direction.clone()) {
             if result.is_none() || t < distance {
