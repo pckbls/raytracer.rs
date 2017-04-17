@@ -65,14 +65,14 @@ fn main() {
             lighting::LightSource {
                 position: Vec4::new(-3.0, -3.0, -3.0, 1.0),
                 ambient_color: color::Color { r: 0, g: 0, b: 0 },
-                diffuse_color: color::Color { r: 150, g: 0, b: 0 },
+                diffuse_color: color::Color { r: 200, g: 0, b: 0 },
                 specular_color: color::Color { r: 255, g: 255, b: 255 },
             }
         ],
         camera: camera
     };
 
-    let mut pixmap = pixmap::Pixmap::new(1024, 1024);
+    let mut pixmap = pixmap::Pixmap::new(512, 512);
 
     let ts_before = time::Instant::now();
     raytrace::render_scene(&scene, &mut pixmap);
