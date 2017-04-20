@@ -30,7 +30,7 @@ impl Vec4 {
             panic!("Normalizing a Vec4 with w-component != 0.0 does not make sense.");
         }
 
-        let length = (self.clone() * self.clone()).sqrt();
+        let length = self.length();
         self.x /= length;
         self.y /= length;
         self.z /= length;
@@ -64,6 +64,10 @@ impl Vec4 {
     #[allow(dead_code)]
     pub fn dot(a: &Vec4, b: &Vec4) -> f64 {
         a.clone() * b.clone()
+    }
+
+    pub fn length(&self) -> f64 {
+        (self.clone() * self.clone()).sqrt()
     }
 
     #[allow(dead_code)]

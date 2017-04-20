@@ -12,14 +12,14 @@ use std::time;
 use algebra::Vec4;
 
 fn main() {
-    let mesh = mesh::Mesh::try_load_from_off("./meshes/cowboyhut.off", mesh::PolygonWinding::Clockwise).unwrap();
+    let mesh = mesh::Mesh::try_load_from_off("./meshes/teapot.off", mesh::PolygonWinding::Clockwise).unwrap();
 
     let model = model::Model::new(mesh.clone(),
-                                  Vec4::new(-3.0, -1.0, 0.0, 1.0),
+                                  Vec4::new(0.0, -1.0, 0.0, 1.0),
                                   algebra::Mat4::rotate(&algebra::Mat4::identity(),
                                                         algebra::Angle::Degrees(40.0),
                                                         &algebra::Vec4::new(0.0, 1.0, 0.0, 0.0)),
-                                  Vec4::new(5.0, 5.0, 5.0, 1.0));
+                                  Vec4::new(1.0, 1.0, 1.0, 1.0));
 
     let mesh_plane4x4 = mesh::Mesh::try_load_from_off("./meshes/plane4x4.off", mesh::PolygonWinding::Clockwise).unwrap();
 
@@ -55,24 +55,27 @@ fn main() {
                 ambient_color: color::Color { r: 20, g: 20, b: 20 },
                 diffuse_color: color::Color { r: 0, g: 0, b: 0 },
                 specular_color: color::Color { r: 0, g: 0, b: 0 },
+                intensity: 1.0,
             },
             lighting::LightSource {
-                position: Vec4::new(3.0, -3.0, 10.0, 1.0),
+                position: Vec4::new(3.0, -3.0, 3.0, 1.0),
                 ambient_color: color::Color { r: 0, g: 0, b: 0 },
                 diffuse_color: color::Color { r: 0, g: 100, b: 200 },
                 specular_color: color::Color { r: 255, g: 255, b: 255 },
+                intensity: 3.0,
             },
             lighting::LightSource {
-                position: Vec4::new(-3.0, 3.0, 3.0, 1.0),
+                position: Vec4::new(-3.0, -3.0, 3.0, 1.0),
                 ambient_color: color::Color { r: 0, g: 0, b: 0 },
-                diffuse_color: color::Color { r: 200, g: 0, b: 0 },
+                diffuse_color: color::Color { r: 150, g: 0, b: 0 },
                 specular_color: color::Color { r: 255, g: 255, b: 255 },
+                intensity: 1.0,
             }
         ],
         camera: camera
     };
 
-    let mut pixmap = pixmap::Pixmap::new(1024, 1024);
+    let mut pixmap = pixmap::Pixmap::new(256, 256);
 
     let ts_before = time::Instant::now();
     raytrace::render_scene(&scene, &mut pixmap);

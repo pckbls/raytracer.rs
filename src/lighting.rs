@@ -9,7 +9,8 @@ pub struct LightSource {
     pub position: Vec4,
     pub ambient_color: Color,
     pub diffuse_color: Color,
-    pub specular_color: Color
+    pub specular_color: Color,
+    pub intensity: f64
 }
 
 #[allow(dead_code)]
@@ -47,16 +48,20 @@ pub fn apply_face_lighting(model: &Model, face: &Face, position: &Vec4, light_so
         _ => panic!("Shading type has not been implemented yet.")
     };
 
+    // TODO
+    let light_source_attenuation = 1.0 / (position.clone() - light_source.position.clone()).length();
+
     // Apply the diffuse lighting part
     let mut intensity = Vec4::dot(&(position.clone() - light_source.position.clone()).normalize(), &face_normal);
     if intensity < 0.0 {
         intensity = 0.0;
     }
-    color = color.clone() + intensity * light_source.diffuse_color.clone();
+    color = color.clone() + light_source.intensity * light_source_attenuation * intensity * light_source.diffuse_color.clone();
 
     // Apply the specular highlight
-    intensity = blinn_phong_reflection_intensity(&light_source.position, &position, &face_normal);
-    color = color.clone() + intensity.powf(5.0) * light_source.specular_color.clone(); // TODO: use shininess
+    // TODO: Use shininess parameter
+    intensity = blinn_phong_reflection_intensity(&light_source.position, &position, &face_normal).powf(5.0);
+    color = color.clone() + light_source.intensity * light_source_attenuation * intensity * light_source.specular_color.clone();
 
     color
 }
